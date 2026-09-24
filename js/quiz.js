@@ -80,6 +80,11 @@
     elProgressPercent.textContent = `${percentage}%`;
     elBtnBack.disabled = (currentIndex === 0);
 
+    // Efeito pop suave no contador
+    elProgressText.classList.remove("pop");
+    void elProgressText.offsetWidth; // Força reflow para reiniciar animação
+    elProgressText.classList.add("pop");
+
     // Efeito visual direcional no texto da pergunta
     const exitClass = direction === "forward" ? "transitioning-out-left" : "transitioning-out-right";
     elQuestionText.classList.add(exitClass);

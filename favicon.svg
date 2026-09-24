@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="idomedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#003b71"/>
+      <stop offset="100%" stop-color="#001c38"/>
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#02c39a"/>
+      <stop offset="100%" stop-color="#00a896"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Fundo Circular Institucional Azul IDOMED -->
+  <circle cx="32" cy="32" r="30" fill="url(#idomedGrad)" stroke="#00a896" stroke-width="2.5"/>
+
+  <!-- Cruz Médica com Acento Verde Cirúrgico -->
+  <g filter="url(#glow)">
+    <rect x="26.5" y="14" width="11" height="36" rx="4" fill="url(#tealGrad)"/>
+    <rect x="14" y="26.5" width="36" height="11" rx="4" fill="url(#tealGrad)"/>
+  </g>
+
+  <!-- Ponto Central de Foco Científico -->
+  <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>
+</svg>
