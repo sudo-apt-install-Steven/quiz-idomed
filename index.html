@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa sobre Vape e Pod - IDOMED FAMEJIPA</title>
+  <meta name="description" content="Pesquisa acadêmica anônima da Faculdade de Medicina de Ji-Paraná (IDOMED / FAMEJIPA) sobre o uso de cigarros eletrônicos entre jovens.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #004b87;
+      --primary-hover: #003763;
+      --secondary: #00a896;
+      --secondary-dark: #028074;
+      --accent: #02c39a;
+      --bg: #f3f6f9;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --border-active: #00a896;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 580px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      background: linear-gradient(135deg, #004b87 0%, #003661 100%);
+      color: #ffffff;
+      padding: 24px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .brand-sub {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #93c5fd;
+      letter-spacing: 0.5px;
+    }
+
+    .quiz-body {
+      padding: 28px 24px;
+    }
+
+    .progress-section {
+      margin-bottom: 24px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 10%;
+      background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+      border-radius: 999px;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .question-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.45;
+      margin-bottom: 20px;
+      min-height: 56px;
+    }
+
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn-opt {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      padding: 15px 18px;
+      text-align: left;
+      font-size: 0.975rem;
+      font-weight: 500;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-opt:hover {
+      background: #f0fdfa;
+      border-color: var(--secondary);
+      color: #0f766e;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(0, 168, 150, 0.15);
+    }
+
+    .btn-opt:active {
+      transform: scale(0.99);
+    }
+
+    .opt-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      margin-left: 12px;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .btn-opt:hover .opt-circle {
+      border-color: var(--secondary);
+      background: #ccfbf1;
+    }
+
+    .navigation-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn-back {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .btn-back:hover:not(:disabled) {
+      color: var(--primary);
+      background: #f1f5f9;
+    }
+
+    .btn-back:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .anonymity-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #0f766e;
+      background: #f0fdfa;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #ccfbf1;
+    }
+
+    /* Screen States */
+    .state-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top-color: var(--secondary);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .icon-badge {
+      width: 68px;
+      height: 68px;
+      background: #dcfce7;
+      color: #16a34a;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+    }
+
+    .error-badge {
+      width: 68px;
+      height: 68px;
+      background: #fee2e2;
+      color: #dc2626;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 20px;
+    }
+
+    .state-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+
+    .state-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 420px;
+      margin: 0 auto 24px;
+    }
+
+    .privacy-notice {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.85rem;
+      color: #475569;
+      margin: 20px auto 24px;
+      max-width: 440px;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .btn-action {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-action:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container" role="main">
+    <!-- Header Institucional -->
+    <header class="header">
+      <div class="brand-badge">IDOMED</div>
+      <div class="brand-sub">FAMEJIPA • Faculdade de Medicina de Ji-Paraná</div>
+    </header>
+
+    <!-- Quiz Ativo -->
+    <section class="quiz-body" id="quizContainer">
+      <div class="progress-section">
+        <div class="progress-info">
+          <span id="progressText">Pergunta 1 de 10</span>
+          <span id="percentText">10%</span>
+        </div>
+        <div class="progress-bar-wrap" aria-hidden="true">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+      </div>
+
+      <h1 class="question-title" id="questionText">Carregando pergunta...</h1>
+
+      <div class="options-group" id="optionsGroup" role="group" aria-label="Opções de resposta">
+        <!-- Gerado via JavaScript -->
+      </div>
+
+      <footer class="navigation-bar">
+        <button type="button" class="btn-back" id="btnBack" onclick="previousQuestion()" disabled>
+          ← Voltar
+        </button>
+        <div class="anonymity-tag">
+          <span>🔒</span>
+          <span>Pesquisa 100% Anônima</span>
+        </div>
+      </footer>
+    </section>
+
+    <!-- Tela de Carregamento / Envio -->
+    <section class="state-screen" id="loadingScreen" aria-live="polite">
+      <div class="spinner"></div>
+      <h2 class="state-title">Gravando suas respostas...</h2>
+      <p class="state-desc">Conectando aos servidores seguros da pesquisa.</p>
+    </section>
+
+    <!-- Tela de Sucesso -->
+    <section class="state-screen" id="successScreen">
+      <div class="icon-badge">✓</div>
+      <h2 class="state-title">Obrigado por participar!</h2>
+      <p class="state-desc">
+        Sua colaboração é fundamental para a análise científica sobre a saúde e percepções dos jovens em Ji-Paraná e região.
+      </p>
+
+      <div class="privacy-notice">
+        <strong>Garantia de Anonimato:</strong><br>
+        Esta pesquisa não solicitou nem registrou dados pessoais como nome, e-mail, telefone ou endereço IP. Suas respostas são tratadas de forma estritamente estatística e confidencial.
+      </div>
+
+      <button type="button" class="btn-action" onclick="resetQuiz()">
+        Responder Novamente
+      </button>
+    </section>
+
+    <!-- Tela de Erro com Reenvio -->
+    <section class="state-screen" id="errorScreen">
+      <div class="error-badge">!</div>
+      <h2 class="state-title">Falha no envio</h2>
+      <p class="state-desc">
+        Não foi possível conectar ao banco de dados neste momento. Verifique sua conexão com a internet.
+      </p>
+      <button type="button" class="btn-action" onclick="submitAnswers()">
+        Tentar Novamente
+      </button>
+    </section>
+  </main>
+
+  <script>
+    // Configurações públicas do Supabase (Chave pública ANON segura para frontend)
+    const SUPABASE_URL = "https://awetqrqxvosoejxnwlsx.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZXRxcnF4dm9zb2VqeG53bHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODEyMzUsImV4cCI6MjEwNTg1NzIzNX0.bMHSB_mN6U5kYf2578n9mZo3IY9g_jfqkdXMN7EqI3o";
+
+    const questions = [
+      {
+        field: "q1_faixa_etaria",
+        q: "Qual é a sua idade e ano escolar?",
+        options: [
+          "14 a 15 anos",
+          "16 a 17 anos",
+          "18 anos"
+        ]
+      },
+      {
+        field: "q2_contato_vape",
+        q: "Você já teve contato com cigarro eletrônico (vape/pod)?",
+        options: [
+          "Nunca experimentei",
+          "Já experimentei, mas não uso",
+          "Uso ocasionalmente",
+          "Uso frequentemente"
+        ]
+      },
+      {
+        field: "q3_idade_primeiro_contato",
+        q: "Com qual idade ocorreu o primeiro contato?",
+        options: [
+          "Menos de 12 anos",
+          "12 a 13 anos",
+          "14 a 15 anos",
+          "16 a 18 anos",
+          "Nunca usei"
+        ]
+      },
+      {
+        field: "q4_dispositivo_popular",
+        q: "Qual dispositivo é mais popular entre o seu grupo?",
+        options: [
+          "Pod descartável",
+          "Pod recarregável",
+          "Vape Mod tradicional",
+          "Não sei a diferença"
+        ]
+      },
+      {
+        field: "q5_atrativo_principal",
+        q: "O que mais atrai a atenção dos jovens para testar?",
+        options: [
+          "Sabores e cheiros doces/frutados",
+          "Curiosidade",
+          "Influência dos amigos",
+          "Redes sociais (TikTok/Instagram)",
+          "Alívio de estresse"
+        ]
+      },
+      {
+        field: "q6_amigos_usam",
+        q: "Quantos dos seus amigos mais próximos usam vape?",
+        options: [
+          "Nenhum",
+          "Poucos (1 ou 2)",
+          "A maioria",
+          "Todos"
+        ]
+      },
+      {
+        field: "q7_forma_acesso",
+        q: "Como a maioria dos jovens consegue esses produtos?",
+        options: [
+          "Lojas físicas / Tabacarias",
+          "Internet / Redes sociais",
+          "Amigos mais velhos",
+          "Escondido da família"
+        ]
+      },
+      {
+        field: "q8_frequencia_escola",
+        q: "Com que frequência você vê uso de vape ao redor da escola?",
+        options: [
+          "Nunca",
+          "Raramente",
+          "Às vezes",
+          "Diariamente / É muito comum"
+        ]
+      },
+      {
+        field: "q9_percepcao_risco",
+        q: "Qual o grau de risco do vape comparado ao cigarro tradicional?",
+        options: [
+          "Muito menos prejudicial",
+          "Um pouco menos prejudicial",
+          "Tão prejudicial quanto",
+          "Mais prejudicial"
+        ]
+      },
+      {
+        field: "q10_dialogo_prevencao",
+        q: "Você já teve conversas sobre os riscos com a escola ou família?",
+        options: [
+          "Na escola e em casa",
+          "Apenas na escola",
+          "Apenas em casa",
+          "Nunca conversei sobre isso"
+        ]
+      }
+    ];
+
+    let currentIndex = 0;
+    let userAnswers = [];
+
+    const quizContainer = document.getElementById("quizContainer");
+    const loadingScreen = document.getElementById("loadingScreen");
+    const successScreen = document.getElementById("successScreen");
+    const errorScreen = document.getElementById("errorScreen");
+    const questionText = document.getElementById("questionText");
+    const optionsGroup = document.getElementById("optionsGroup");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const percentText = document.getElementById("percentText");
+    const btnBack = document.getElementById("btnBack");
+
+    function renderQuestion() {
+      const current = questions[currentIndex];
+      questionText.textContent = `${currentIndex + 1}. ${current.q}`;
+      
+      const pct = Math.round(((currentIndex + 1) / questions.length) * 100);
+      progressBar.style.width = `${pct}%`;
+      progressText.textContent = `Pergunta ${currentIndex + 1} de ${questions.length}`;
+      percentText.textContent = `${pct}%`;
+      btnBack.disabled = (currentIndex === 0);
+
+      optionsGroup.innerHTML = "";
+
+      current.options.forEach(optText => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-opt";
+        
+        const label = document.createElement("span");
+        label.textContent = optText;
+
+        const circle = document.createElement("span");
+        circle.className = "opt-circle";
+
+        btn.appendChild(label);
+        btn.appendChild(circle);
+
+        btn.onclick = () => handleAnswerSelect(optText);
+        optionsGroup.appendChild(btn);
+      });
+    }
+
+    function handleAnswerSelect(selectedAnswer) {
+      userAnswers[currentIndex] = selectedAnswer;
+
+      if (currentIndex + 1 < questions.length) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        submitAnswers();
+      }
+    }
+
+    function previousQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    }
+
+    async function submitAnswers() {
+      // Oculta quiz e exibe carregamento
+      quizContainer.style.display = "none";
+      errorScreen.style.display = "none";
+      loadingScreen.style.display = "block";
+
+      // Mapeamento estrito das 10 perguntas para o Supabase
+      const payload = {
+        q1_faixa_etaria: userAnswers[0] || "",
+        q2_contato_vape: userAnswers[1] || "",
+        q3_idade_primeiro_contato: userAnswers[2] || "",
+        q4_dispositivo_popular: userAnswers[3] || "",
+        q5_atrativo_principal: userAnswers[4] || "",
+        q6_amigos_usam: userAnswers[5] || "",
+        q7_forma_acesso: userAnswers[6] || "",
+        q8_frequencia_escola: userAnswers[7] || "",
+        q9_percepcao_risco: userAnswers[8] || "",
+        q10_dialogo_prevencao: userAnswers[9] || ""
+      };
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/quiz_responses`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          loadingScreen.style.display = "none";
+          successScreen.style.display = "block";
+        } else {
+          const errDetail = await response.text();
+          console.error("Erro na API do Supabase:", errDetail);
+          throw new Error(errDetail);
+        }
+      } catch (err) {
+        console.error("Erro ao enviar respostas:", err);
+        loadingScreen.style.display = "none";
+        errorScreen.style.display = "block";
+      }
+    }
+
+    function resetQuiz() {
+      currentIndex = 0;
+      userAnswers = [];
+      successScreen.style.display = "none";
+      errorScreen.style.display = "none";
+      quizContainer.style.display = "block";
+      renderQuestion();
+    }
+
+    // Inicialização
+    renderQuestion();
+  </script>
+</body>
+</html>
