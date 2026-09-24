@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Administrativo - Pesquisa Vape/Pod IDOMED</title>
+  <title>Painel Administrativo & Estatísticas - Pesquisa Vape/Pod IDOMED</title>
   <meta name="theme-color" content="#003b71">
 
   <!-- Favicon Institucional IDOMED -->
@@ -14,6 +14,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Chart.js para Visualização de Dados Profissional -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
   <!-- Estilos Modularizados -->
   <link rel="stylesheet" href="css/main.css">
@@ -33,19 +36,22 @@
         </div>
         <div>
           <h1 class="admin-brand-title">IDOMED FAMEJIPA</h1>
-          <div class="admin-brand-sub">Comitê de Pesquisa e Extensão Acadêmica</div>
+          <div class="admin-brand-sub">Comitê de Pesquisa e Extensão Acadêmica • Observatório Vape & Pod</div>
         </div>
       </div>
 
       <nav class="admin-nav-actions" id="navActions" style="display: none;" aria-label="Ações do Painel">
-        <button type="button" class="btn-action secondary" onclick="loadDashboardData()" title="Atualizar Dados">
+        <button type="button" class="btn-action secondary" onclick="loadDashboardData()" title="Atualizar Dados em Tempo Real">
           🔄 Atualizar
         </button>
         <button type="button" class="btn-action primary" onclick="openQrModal()" title="Gerar QR Code">
           📱 Gerar QR Code
         </button>
-        <button type="button" class="btn-action accent" onclick="exportResponsesCSV()" title="Exportar para Planilha">
+        <button type="button" class="btn-action accent" onclick="exportResponsesCSV()" title="Exportar para Excel/SPSS">
           📥 Exportar CSV
+        </button>
+        <button type="button" class="btn-action secondary" onclick="window.print()" title="Imprimir Relatório Acadêmico">
+          🖨️ Imprimir / PDF
         </button>
         <button type="button" class="btn-action danger" onclick="handleLogout()" title="Sair do Sistema">
           Sair
@@ -57,7 +63,7 @@
     <main class="login-card" id="loginPanel" role="main">
       <div class="login-header">
         <h2>Acesso Administrativo</h2>
-        <p>Painel restrito a docentes e pesquisadores autorizados.</p>
+        <p>Painel restrito a docentes e pesquisadores autorizados da IDOMED.</p>
       </div>
 
       <div class="alert-box" id="loginErrorAlert" role="alert"></div>
@@ -77,46 +83,161 @@
       </form>
     </main>
 
-    <!-- Dashboard Principal de Métricas e Análise -->
+    <!-- Dashboard Principal de Métricas, Estatísticas e Análise -->
     <section class="dashboard-content" id="dashboardPanel">
+
+      <!-- Barra de Filtros Interativos (Slicers) -->
+      <div class="filters-bar">
+        <div class="filters-title">
+          <span>⚡ Filtros de Análise:</span>
+        </div>
+        <div class="filters-group">
+          <div class="filter-item">
+            <label for="filterAge">Faixa Etária:</label>
+            <select id="filterAge" onchange="applyFilters()">
+              <option value="ALL">Todas as Idades</option>
+              <option value="14 a 15 anos">14 a 15 anos</option>
+              <option value="16 a 17 anos">16 a 17 anos</option>
+              <option value="18 anos">18 anos</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label for="filterContact">Contato com Vape:</label>
+            <select id="filterContact" onchange="applyFilters()">
+              <option value="ALL">Todos os Perfis</option>
+              <option value="EXPERIENCED">Já Experimentaram / Usam</option>
+              <option value="NEVER">Nunca Experimentaram</option>
+              <option value="FREQUENT">Uso Frequente</option>
+            </select>
+          </div>
+          <button type="button" class="btn-clear-filter" onclick="resetFilters()">
+            ✕ Limpar Filtros
+          </button>
+        </div>
+        <div class="filter-active-status" id="filterStatusBadge">
+          Exibindo todos os registros
+        </div>
+      </div>
       
-      <!-- Cards de Métricas Principais -->
+      <!-- Cards de Métricas e KPIs Epidemiológicos -->
       <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-card-label">Total de Respostas</div>
+          <div class="metric-card-label">Amostra Total</div>
           <div class="metric-card-value" id="totalResponsesCount">0</div>
           <div class="metric-card-sub">Participantes confirmados</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-card-label">Integridade & Segurança</div>
-          <div class="metric-card-value" style="font-size: 1.5rem; color: var(--color-success);">RLS Ativo</div>
-          <div class="metric-card-sub">Proteção por Row Level Security</div>
+          <div class="metric-card-label">Taxa de Experimentação</div>
+          <div class="metric-card-value" id="kpiExperimentationRate">0%</div>
+          <div class="metric-card-sub" id="kpiExperimentationSub">Já experimentaram ou usam</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-card-label">Status da Conexão</div>
-          <div class="metric-card-value" style="font-size: 1.5rem; color: var(--color-secondary);">PostgreSQL 17</div>
-          <div class="metric-card-sub">Supabase us-west-2 (AWS)</div>
+          <div class="metric-card-label">Uso Regular / Ativo</div>
+          <div class="metric-card-value" id="kpiActiveUsageRate">0%</div>
+          <div class="metric-card-sub" id="kpiActiveUsageSub">Uso frequente ou ocasional</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-card-label">Dispositivo Líder</div>
+          <div class="metric-card-value" id="kpiTopDevice" style="font-size: 1.35rem; line-height: 1.2;">-</div>
+          <div class="metric-card-sub">Mais popular entre os grupos</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-card-label">Percepção de Alto Risco</div>
+          <div class="metric-card-value" id="kpiHighRiskRate">0%</div>
+          <div class="metric-card-sub">Tão ou mais nocivo que o comum</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-card-label">Exposição Escolar</div>
+          <div class="metric-card-value" id="kpiSchoolExposureRate">0%</div>
+          <div class="metric-card-sub">Presenciam uso diário ou às vezes</div>
         </div>
       </div>
 
-      <!-- Seção de Gráficos das 10 Perguntas -->
+      <!-- Síntese Acadêmica Automática (Executive Summary) -->
+      <div class="insights-panel" id="insightsPanel">
+        <div class="insights-header">
+          <span class="insights-icon">💡</span>
+          <h3>Síntese Científica & Evidências Observadas</h3>
+        </div>
+        <div class="insights-body" id="insightsContent">
+          Carregando análises dos dados...
+        </div>
+      </div>
+
+      <!-- SEÇÃO DE COMPARAÇÕES E CRUZAMENTOS ESTATÍSTICOS (Cross-Tabulation) -->
       <div class="section-title-wrap">
-        <h2 class="section-title">Distribuição Estatística das Respostas</h2>
+        <h2 class="section-title">Cruzamentos Estatísticos & Comparações Clínicas</h2>
+        <span class="section-subtitle">Correlações multifatoriais sobre o comportamento juvenil</span>
+      </div>
+
+      <div class="comparisons-grid">
+        <!-- Comparação 1: Faixa Etária vs Uso de Vape -->
+        <div class="comparison-card">
+          <div class="comparison-header">
+            <h3>Idade vs Prevalência de Contato com Vape</h3>
+            <p>Comportamento de experimentação categorizado por faixa etária escolar.</p>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartAgeVsUsage"></canvas>
+          </div>
+        </div>
+
+        <!-- Comparação 2: Percepção de Risco vs Frequência de Uso -->
+        <div class="comparison-card">
+          <div class="comparison-header">
+            <h3>Percepção de Dano vs Frequência de Uso Real</h3>
+            <p>Avaliação da consciência de risco entre usuários frequentes e não usuários.</p>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartRiskVsUsage"></canvas>
+          </div>
+        </div>
+
+        <!-- Comparação 3: Influência de Amigos vs Uso Pessoal -->
+        <div class="comparison-card">
+          <div class="comparison-header">
+            <h3>Pressão de Pares: Amigos Próximos vs Uso Pessoal</h3>
+            <p>Correlação entre conviver com amigos que usam e a adesão ao vape.</p>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartPeerInfluence"></canvas>
+          </div>
+        </div>
+
+        <!-- Comparação 4: Diálogo Familiar/Escolar vs Uso -->
+        <div class="comparison-card">
+          <div class="comparison-header">
+            <h3>Eficácia Preventiva: Diálogo Preventivo vs Contato</h3>
+            <p>Impacto das conversas em casa ou na escola na decisão de não experimentar.</p>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartDialogueVsUsage"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO DE GRÁFICOS DETALHADOS DAS 10 PERGUNTAS -->
+      <div class="section-title-wrap" style="margin-top: 40px;">
+        <h2 class="section-title">Estatísticas Detalhadas por Pergunta</h2>
+        <span class="section-subtitle">Frequência absoluta (N) e relativa (%) de cada alternativa</span>
       </div>
 
       <div class="questions-grid" id="questionsChartGrid">
-        <!-- Cards com barras proporcionais gerados dinamicamente via js/admin.js -->
+        <!-- Renderizado dinamicamente via js/admin.js -->
       </div>
 
-      <!-- Tabela com Todas as Submissões Anônimas -->
+      <!-- TABELA COMPLETA COM TODAS AS RESPOSTAS INDIVIDUAIS -->
       <section class="table-panel">
         <div class="table-toolbar">
           <div>
-            <h2 class="section-title" style="font-size: 1.15rem; margin-bottom: 2px;">Respostas Individuais</h2>
+            <h2 class="section-title" style="font-size: 1.15rem; margin-bottom: 2px;">Microdados Tabulados (Respostas Individuais)</h2>
             <p style="font-size: 0.85rem; color: var(--color-text-muted);">
-              Dados brutos tabulados (estritamente anônimos).
+              Amostra completa de respostas anônimas registradas no banco de dados.
             </p>
           </div>
 
