@@ -1,7 +1,7 @@
 /**
  * Lógica do Quiz Público - IDOMED FAMEJIPA
- * Gerencia o fluxo de perguntas, microinterações, transições suaves,
- * prevenção de duplo envio e persistência segura no Supabase.
+ * Gerencia o fluxo de perguntas, microinterações táteis, feedback háptico,
+ * transições direcionais suaves, prevenção de duplo envio e persistência segura.
  */
 
 (function() {
@@ -14,6 +14,8 @@
     console.error("Configurações ou perguntas não encontradas.");
     return;
   }
+
+  const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   // Estado da Aplicação
   let currentIndex = 0;
@@ -35,6 +37,19 @@
   const elBtnBack = document.getElementById("btnBack");
 
   /**
+   * Dispara vibração háptica sutil em dispositivos móveis compatíveis
+   */
+  function triggerHaptic(duration = 12) {
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+        navigator.vibrate(duration);
+      }
+    } catch (_) {
+      // Ignora se não for suportado ou bloqueado pelo navegador
+    }
+  }
+
+  /**
    * Gera um UUID v4 seguro para controle de idempotência
    */
   function generateUUID() {
@@ -49,13 +64,13 @@
   }
 
   /**
-   * Renderiza a pergunta atual na tela com transição suave
+   * Renderiza a pergunta atual na tela com transição direcional suave
    */
-  function renderQuestion() {
+  function renderQuestion(direction = "forward") {
     const currentQ = questions[currentIndex];
     if (!currentQ) return;
 
-    // Atualiza progresso
+    // Atualiza barra de progresso e rótulos
     const currentNumber = currentIndex + 1;
     const totalNumber = questions.length;
     const percentage = Math.round((currentNumber / totalNumber) * 100);
@@ -65,14 +80,21 @@
     elProgressPercent.textContent = `${percentage}%`;
     elBtnBack.disabled = (currentIndex === 0);
 
-    // Efeito suave na transição do texto
-    elQuestionText.classList.add("transitioning");
+    // Efeito visual direcional no texto da pergunta
+    const exitClass = direction === "forward" ? "transitioning-out-left" : "transitioning-out-right";
+    elQuestionText.classList.add(exitClass);
+
     setTimeout(() => {
       elQuestionText.textContent = `${currentNumber}. ${currentQ.q}`;
-      elQuestionText.classList.remove("transitioning");
-    }, 120);
+      elQuestionText.classList.remove(exitClass);
+      elQuestionText.classList.add("transitioning-in");
+      
+      requestAnimationFrame(() => {
+        elQuestionText.classList.remove("transitioning-in");
+      });
+    }, 140);
 
-    // Renderiza alternativas
+    // Renderiza alternativas com badges de letras e suporte tátil
     elOptionsList.innerHTML = "";
     const previouslySelected = userAnswers[currentIndex];
 
@@ -88,12 +110,22 @@
         btn.classList.add("selected");
       }
 
-      // Rótulo da opção
+      // Conteúdo à esquerda (Letra + Texto)
+      const leftWrap = document.createElement("div");
+      leftWrap.className = "option-left-content";
+
+      const letterBadge = document.createElement("span");
+      letterBadge.className = "option-letter-badge";
+      letterBadge.textContent = OPTION_LETTERS[optIdx] || (optIdx + 1);
+
       const spanLabel = document.createElement("span");
       spanLabel.className = "option-label";
       spanLabel.textContent = optText;
 
-      // Marcador circular visual
+      leftWrap.appendChild(letterBadge);
+      leftWrap.appendChild(spanLabel);
+
+      // Marcador circular direito
       const marker = document.createElement("div");
       marker.className = "option-marker";
       marker.innerHTML = `
@@ -102,7 +134,7 @@
         </svg>
       `;
 
-      btn.appendChild(spanLabel);
+      btn.appendChild(leftWrap);
       btn.appendChild(marker);
 
       btn.addEventListener("click", () => handleSelectOption(optText, btn));
@@ -111,10 +143,12 @@
   }
 
   /**
-   * Manipula a seleção de uma alternativa com feedback tátil
+   * Manipula a seleção de uma alternativa com feedback tátil e sonoro/háptico
    */
   function handleSelectOption(optionText, btnElement) {
     if (isSubmitting) return;
+
+    triggerHaptic(14);
 
     // Feedback visual imediato na opção clicada
     const allButtons = elOptionsList.querySelectorAll(".option-item");
@@ -131,11 +165,11 @@
     setTimeout(() => {
       if (currentIndex + 1 < questions.length) {
         currentIndex++;
-        renderQuestion();
+        renderQuestion("forward");
       } else {
         submitQuizAnswers();
       }
-    }, 220);
+    }, 240);
   }
 
   /**
@@ -143,8 +177,9 @@
    */
   window.handlePreviousQuestion = function() {
     if (currentIndex > 0 && !isSubmitting) {
+      triggerHaptic(8);
       currentIndex--;
-      renderQuestion();
+      renderQuestion("backward");
     }
   };
 
@@ -227,9 +262,11 @@
     isSubmitting = false;
 
     if (success) {
+      triggerHaptic(25);
       elLoadingState.style.display = "none";
       elSuccessState.style.display = "block";
     } else {
+      triggerHaptic(50);
       elLoadingState.style.display = "none";
       elErrorState.style.display = "block";
     }
@@ -239,6 +276,7 @@
    * Reenvia as respostas em caso de erro sem perder os dados
    */
   window.retrySubmission = function() {
+    triggerHaptic(10);
     submitQuizAnswers();
   };
 
@@ -246,6 +284,7 @@
    * Reseta o quiz para um novo preenchimento no mesmo dispositivo
    */
   window.resetQuizFlow = function() {
+    triggerHaptic(15);
     currentIndex = 0;
     userAnswers = new Array(questions.length).fill(null);
     submissionToken = generateUUID();
@@ -256,7 +295,7 @@
     elLoadingState.style.display = "none";
     elQuizContainer.style.display = "block";
 
-    renderQuestion();
+    renderQuestion("forward");
   };
 
   // Suporte a atalhos de teclado para acessibilidade
@@ -275,5 +314,5 @@
   });
 
   // Inicialização
-  renderQuestion();
+  renderQuestion("forward");
 })();

@@ -1,5 +1,7 @@
 /* ==========================================================================
    QUIZ COMPONENT STYLES - IDOMED FAMEJIPA
+   Design Premium de Nível Acadêmico: Transições de Estado Fluídas,
+   Áreas de Toque Ergonômicas, Animações Shimmer e Media Queries Específicas.
    ========================================================================== */
 
 .quiz-wrapper {
@@ -7,88 +9,123 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: var(--space-md);
+  width: 100%;
 }
 
 .quiz-card {
   width: 100%;
-  max-width: 580px;
+  max-width: 560px;
   background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-subtle);
   overflow: hidden;
   position: relative;
   transition: transform var(--transition-normal);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* Header Institucional */
+/* ==========================================================================
+   1. Cabeçalho Institucional
+   ========================================================================== */
 .quiz-header {
-  background: linear-gradient(135deg, #003b71 0%, #00264d 100%);
+  background: linear-gradient(135deg, #003b71 0%, #002347 100%);
   color: var(--color-text-inverse);
-  padding: var(--space-xl) var(--space-lg);
+  padding: 24px 20px 20px;
   text-align: center;
   position: relative;
+  border-bottom: 3px solid var(--color-secondary);
 }
 
-.quiz-header::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+.header-crest {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-crest svg {
+  width: 20px;
+  height: 20px;
+  color: #6ee7b7;
 }
 
 .brand-title {
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   font-weight: 800;
   letter-spacing: 2px;
   color: #ffffff;
-  margin-bottom: var(--space-xs);
+  margin-bottom: 2px;
+  text-transform: uppercase;
 }
 
 .brand-faculty {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: #93c5fd;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .brand-badge {
   display: inline-block;
-  margin-top: var(--space-sm);
-  font-size: 0.75rem;
+  margin-top: 10px;
+  font-size: 0.725rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.12);
-  color: #e0f2fe;
-  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #dbeafe;
+  padding: 3px 12px;
   border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Corpo do Questionário */
+/* ==========================================================================
+   2. Corpo do Questionário
+   ========================================================================== */
 .quiz-content {
-  padding: var(--space-xl) var(--space-lg);
+  padding: 24px 22px 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Barra de Progresso */
+/* Barra de Progresso com Shimmer */
 .progress-container {
-  margin-bottom: var(--space-xl);
+  margin-bottom: 22px;
 }
 
 .progress-labels {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: 0.825rem;
   font-weight: 600;
   color: var(--color-text-muted);
-  margin-bottom: var(--space-xs);
+  margin-bottom: 8px;
+}
+
+.progress-step-pill {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.775rem;
+  font-weight: 700;
+  transition: transform var(--duration-fast) var(--ease-spring);
 }
 
 .progress-percent {
-  color: var(--color-secondary);
+  color: var(--color-secondary-dark);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .progress-track {
@@ -97,6 +134,7 @@
   background-color: #edf2f7;
   border-radius: var(--radius-full);
   overflow: hidden;
+  position: relative;
 }
 
 .progress-bar {
@@ -105,77 +143,122 @@
   background: linear-gradient(90deg, var(--color-secondary) 0%, var(--color-accent) 100%);
   border-radius: var(--radius-full);
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-/* Área da Pergunta */
+/* Efeito de brilho fluído na barra de progresso */
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: barShimmer 2.2s infinite;
+}
+
+@keyframes barShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Bloco da Pergunta */
 .question-container {
-  min-height: 72px;
-  margin-bottom: var(--space-lg);
+  min-height: 64px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
 }
 
 .question-text {
-  font-size: 1.25rem;
+  font-size: 1.18rem;
   font-weight: 700;
   color: var(--color-text-main);
-  line-height: 1.45;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  line-height: 1.42;
+  transition: opacity 0.16s ease, transform 0.16s var(--ease-out);
 }
 
-.question-text.transitioning {
+.question-text.transitioning-out-left {
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateX(-16px);
 }
 
-/* Opções de Resposta */
+.question-text.transitioning-out-right {
+  opacity: 0;
+  transform: translateX(16px);
+}
+
+.question-text.transitioning-in {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* ==========================================================================
+   3. Lista de Alternativas (Touch Cards)
+   ========================================================================== */
 .options-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: var(--space-xl);
+  gap: 11px;
+  margin-bottom: 22px;
 }
 
 .option-item {
   width: 100%;
-  min-height: 56px;
+  min-height: 58px;
   background-color: var(--color-surface);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 14px 18px;
+  padding: 12px 16px;
   text-align: left;
-  font-size: 1rem;
+  font-size: 0.975rem;
   font-weight: 500;
   color: #334155;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all var(--transition-normal);
+  gap: 12px;
+  transition: all var(--duration-fast) var(--ease-out);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   position: relative;
   touch-action: manipulation;
+  overflow: hidden;
 }
 
-.option-item:hover {
-  background-color: var(--color-secondary-light);
-  border-color: var(--color-secondary);
-  color: var(--color-secondary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.option-left-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
 }
 
-.option-item:active {
-  transform: scale(0.985);
+/* Letra da Alternativa (A, B, C, D...) */
+.option-letter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all var(--duration-fast) ease;
 }
 
-.option-item.selected {
-  background-color: var(--color-secondary-light);
-  border-color: var(--color-secondary);
-  color: var(--color-secondary-hover);
-  font-weight: 600;
+.option-label {
+  line-height: 1.35;
+  word-break: break-word;
+  color: #1e293b;
 }
 
+/* Marcador Circular Direito */
 .option-marker {
   width: 22px;
   height: 22px;
@@ -185,18 +268,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-left: 12px;
-  transition: all var(--transition-fast);
-}
-
-.option-item:hover .option-marker {
-  border-color: var(--color-secondary);
-}
-
-.option-item.selected .option-marker {
-  background-color: var(--color-secondary);
-  border-color: var(--color-secondary);
-  color: #ffffff;
+  transition: all var(--duration-fast) ease;
 }
 
 .option-marker svg {
@@ -204,37 +276,96 @@
   width: 12px;
   height: 12px;
   stroke: #ffffff;
-  stroke-width: 3;
+  stroke-width: 3.2;
+}
+
+/* Estados Interativos */
+.option-item:hover {
+  background-color: var(--color-secondary-light);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.option-item:hover .option-letter-badge {
+  background-color: var(--color-secondary);
+  color: #ffffff;
+  border-color: var(--color-secondary);
+}
+
+.option-item:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Estado Selecionado */
+.option-item.selected {
+  background-color: var(--color-secondary-light);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 1px var(--color-secondary), var(--shadow-md);
+}
+
+.option-item.selected .option-label {
+  color: var(--color-secondary-dark);
+  font-weight: 600;
+}
+
+.option-item.selected .option-letter-badge {
+  background-color: var(--color-secondary);
+  color: #ffffff;
+  border-color: var(--color-secondary);
+}
+
+.option-item.selected .option-marker {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  transform: scale(1.08);
 }
 
 .option-item.selected .option-marker svg {
   display: block;
+  animation: checkPop 0.2s var(--ease-spring);
 }
 
-/* Barra de Navegação e Rodapé */
+@keyframes checkPop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* ==========================================================================
+   4. Barra Inferior de Navegação
+   ========================================================================== */
 .quiz-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: var(--space-md);
+  padding-top: 16px;
   border-top: 1px solid var(--color-border);
+  gap: 12px;
 }
 
 .btn-nav {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text-muted);
-  padding: 8px 14px;
+  padding: 10px 14px;
   border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  transition: all var(--duration-fast) ease;
+  min-height: 40px;
 }
 
 .btn-nav:hover:not(:disabled) {
   background-color: var(--color-surface-hover);
   color: var(--color-primary);
+}
+
+.btn-nav:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 .btn-nav:disabled {
@@ -246,76 +377,113 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.8rem;
+  font-size: 0.775rem;
   font-weight: 600;
   color: #0f766e;
   background-color: #f0fdfa;
   border: 1px solid #ccfbf1;
   padding: 6px 12px;
   border-radius: var(--radius-full);
+  white-space: nowrap;
 }
 
-/* Telas de Estado (Loading, Sucesso, Erro) */
+/* ==========================================================================
+   5. Telas de Estado (Loading, Sucesso com SVG animado, Erro)
+   ========================================================================== */
 .state-panel {
   display: none;
   text-align: center;
-  padding: var(--space-2xl) var(--space-lg);
-  animation: panelFadeIn 0.35s ease-out;
+  padding: 36px 20px 28px;
+  animation: panelSlideUp 0.35s var(--ease-out);
 }
 
-@keyframes panelFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes panelSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Spinner Moderno */
 .loading-spinner {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border: 4px solid #e2e8f0;
   border-top-color: var(--color-secondary);
   border-radius: 50%;
-  margin: 0 auto var(--space-lg);
-  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+  animation: spin 0.85s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-.state-icon {
-  width: 72px;
-  height: 72px;
+/* Ícone de Sucesso com Draw SVG */
+.success-checkmark-wrap {
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  margin: 0 auto var(--space-lg);
+  background: #ecfdf5;
+  border: 2px solid #a7f3d0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.25);
+  animation: popIn 0.4s var(--ease-spring);
 }
 
-.state-icon.success {
-  background-color: var(--color-success-bg);
-  color: var(--color-success);
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+@keyframes popIn {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.success-svg-check {
+  width: 44px;
+  height: 44px;
+  stroke: #10b981;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.success-svg-check path {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: drawCheck 0.5s 0.2s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
 }
 
 .state-icon.error {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
   background-color: var(--color-error-bg);
+  border: 2px solid #fecaca;
   color: var(--color-error);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 auto 20px;
 }
 
 .state-headline {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.45rem;
+  font-weight: 800;
   color: var(--color-text-main);
-  margin-bottom: var(--space-sm);
+  margin-bottom: 10px;
 }
 
 .state-description {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--color-text-muted);
-  max-width: 440px;
-  margin: 0 auto var(--space-xl);
+  max-width: 420px;
+  margin: 0 auto 22px;
   line-height: 1.6;
 }
 
@@ -323,56 +491,167 @@
   background-color: #f8fafc;
   border: 1px dashed #cbd5e1;
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 15px 18px;
   font-size: 0.85rem;
   color: #475569;
   text-align: left;
   line-height: 1.55;
-  margin-bottom: var(--space-xl);
+  margin-bottom: 24px;
+}
+
+.privacy-box strong {
+  color: #1e293b;
+  display: block;
+  margin-bottom: 4px;
 }
 
 .btn-primary {
   background-color: var(--color-primary);
   color: #ffffff;
-  padding: 14px 28px;
-  border-radius: var(--radius-md);
-  font-size: 1rem;
+  padding: 13px 28px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
   font-weight: 600;
-  transition: all var(--transition-fast);
+  transition: all var(--duration-fast) ease;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-height: 48px;
+  box-shadow: 0 4px 12px rgba(0, 59, 113, 0.2);
 }
 
 .btn-primary:hover {
   background-color: var(--color-primary-hover);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
-/* Responsividade Mobile */
-@media (max-width: 480px) {
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   6. Media Queries Rigorosas (Foco em Dispositivos Móveis e QR Code)
+   ========================================================================== */
+
+/* Telas Ultra-Pequenas (<= 360px: iPhone SE 1ª Geração, Galaxy A01, etc.) */
+@media (max-width: 360px) {
   .quiz-wrapper {
-    padding: 10px;
+    padding: 6px;
+  }
+
+  .quiz-card {
+    border-radius: var(--radius-md);
   }
 
   .quiz-header {
-    padding: var(--space-lg) var(--space-md);
+    padding: 18px 14px 16px;
   }
 
   .brand-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+  }
+
+  .brand-faculty {
+    font-size: 0.775rem;
   }
 
   .quiz-content {
-    padding: var(--space-lg) var(--space-md);
+    padding: 18px 14px 16px;
+  }
+
+  .question-container {
+    min-height: 54px;
+    margin-bottom: 14px;
   }
 
   .question-text {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
 
   .option-item {
-    font-size: 0.95rem;
+    min-height: 52px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    gap: 8px;
+  }
+
+  .option-letter-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .anonymity-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Telas de Smartphones Padrão (361px - 480px: iPhones 12/13/14/15/16, Galaxys, Motos) */
+@media (min-width: 361px) and (max-width: 480px) {
+  .quiz-wrapper {
+    padding: 12px;
+  }
+
+  .quiz-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .quiz-header {
+    padding: 22px 18px 18px;
+  }
+
+  .quiz-content {
+    padding: 20px 18px 18px;
+  }
+
+  .question-text {
+    font-size: 1.12rem;
+  }
+
+  .option-item {
     padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Modo Paisagem em Celulares (Max Height <= 500px) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .quiz-wrapper {
+    padding: 8px;
+    align-items: flex-start;
+  }
+
+  .quiz-header {
+    padding: 12px 16px;
+  }
+
+  .brand-badge {
+    display: none;
+  }
+
+  .quiz-content {
+    padding: 14px 18px;
+  }
+
+  .progress-container {
+    margin-bottom: 12px;
+  }
+
+  .question-container {
+    min-height: auto;
+    margin-bottom: 12px;
+  }
+
+  .options-list {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .option-item {
+    min-height: 44px;
+    padding: 8px 12px;
   }
 }
