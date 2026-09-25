@@ -65,7 +65,22 @@ export default async function handler(req, res) {
       });
     }
 
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    if (typeof req.body === "string" && req.body.length > 8192) {
+      return res.status(413).json({
+        success: false,
+        error: "Corpo da requisição excede o limite máximo permitido (8KB)."
+      });
+    }
+
+    let body;
+    try {
+      body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    } catch (_) {
+      return res.status(400).json({
+        success: false,
+        error: "Formato JSON inválido no corpo da requisição."
+      });
+    }
 
     if (!body || typeof body !== "object" || Array.isArray(body)) {
       return res.status(400).json({

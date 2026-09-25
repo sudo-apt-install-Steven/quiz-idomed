@@ -46,8 +46,8 @@
       </div>
 
       <nav class="admin-nav-actions" id="navActions" style="display: none;" aria-label="Ações do Painel">
-        <button type="button" class="btn-action secondary" onclick="loadDashboardData()" title="Atualizar Dados em Tempo Real">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        <button type="button" class="btn-action secondary" id="btnRefreshData" onclick="loadDashboardData()" title="Atualizar Dados em Tempo Real">
+          <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
           <span>Atualizar</span>
         </button>
         <button type="button" class="btn-action primary" onclick="openQrModal()" title="Gerar QR Code">
@@ -203,7 +203,7 @@
             <h3>Idade vs Prevalência de Contato com Vape</h3>
             <p>Comportamento de experimentação categorizado por faixa etária escolar.</p>
           </div>
-          <div class="chart-canvas-wrap">
+          <div class="chart-canvas-wrap" id="wrap_chartAgeVsUsage">
             <canvas id="chartAgeVsUsage"></canvas>
           </div>
         </div>
@@ -214,7 +214,7 @@
             <h3>Percepção de Dano vs Frequência de Uso Real</h3>
             <p>Avaliação da consciência de risco entre usuários frequentes e não usuários.</p>
           </div>
-          <div class="chart-canvas-wrap">
+          <div class="chart-canvas-wrap" id="wrap_chartRiskVsUsage">
             <canvas id="chartRiskVsUsage"></canvas>
           </div>
         </div>
@@ -225,7 +225,7 @@
             <h3>Pressão de Pares: Amigos Próximos vs Uso Pessoal</h3>
             <p>Correlação entre conviver com amigos que usam e a adesão ao vape.</p>
           </div>
-          <div class="chart-canvas-wrap">
+          <div class="chart-canvas-wrap" id="wrap_chartPeerInfluence">
             <canvas id="chartPeerInfluence"></canvas>
           </div>
         </div>
@@ -236,7 +236,7 @@
             <h3>Eficácia Preventiva: Diálogo Preventivo vs Contato</h3>
             <p>Impacto das conversas em casa ou na escola na decisão de não experimentar.</p>
           </div>
-          <div class="chart-canvas-wrap">
+          <div class="chart-canvas-wrap" id="wrap_chartDialogueVsUsage">
             <canvas id="chartDialogueVsUsage"></canvas>
           </div>
         </div>

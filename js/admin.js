@@ -195,6 +195,12 @@
 
     showDashboardScreen();
 
+    const btnRefresh = document.getElementById("btnRefreshData");
+    if (btnRefresh) {
+      btnRefresh.classList.add("loading");
+      btnRefresh.disabled = true;
+    }
+
     try {
       const res = await fetch(`${config.SUPABASE_URL}${config.SUPABASE_REST_TABLE}?select=*&order=created_at.desc`, {
         headers: {
@@ -208,11 +214,23 @@
         return;
       }
 
-      cachedData = await res.json();
+      if (!res.ok) {
+        throw new Error(`Falha no banco de dados (${res.status})`);
+      }
+
+      const data = await res.json();
+      cachedData = Array.isArray(data) ? data : [];
       applyFilters();
 
     } catch (err) {
       console.error("Falha ao consultar respostas no Supabase:", err);
+      cachedData = [];
+      applyFilters();
+    } finally {
+      if (btnRefresh) {
+        btnRefresh.classList.remove("loading");
+        btnRefresh.disabled = false;
+      }
     }
   };
 
@@ -363,7 +381,7 @@
     filteredData.forEach(r => {
       if (r.q7_forma_acesso) acessoCounts[r.q7_forma_acesso] = (acessoCounts[r.q7_forma_acesso] || 0) + 1;
     });
-    const topAcesso = Object.keys(acessoCounts).sort((a,b) => acessoCounts[b] - acessoCounts[a])[0] || "Lojas físicas";
+    const topAcesso = Object.keys(acessoCounts).sort((a,b) => acessoCounts[b] - acessoCounts[a])[0] || "Lojas físicas / Tabacarias";
 
     // Diálogo
     const noDialogue = filteredData.filter(r => r.q10_dialogo_prevencao === "Nunca conversei sobre isso").length;
@@ -395,6 +413,32 @@
     Object.keys(chartInstances).forEach(id => destroyChart(id));
   }
 
+  function ensureCanvas(containerId, canvasId) {
+    const container = document.getElementById(containerId);
+    if (!container) return null;
+    let canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      container.innerHTML = `<canvas id="${canvasId}"></canvas>`;
+      canvas = document.getElementById(canvasId);
+    }
+    return canvas;
+  }
+
+  function showChartEmptyState(containerId, message) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = `
+      <div class="chart-empty-state">
+        <svg class="empty-state-svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        <span class="empty-state-msg">${escapeHTML(message || "Aguardando respostas para este cruzamento")}</span>
+      </div>
+    `;
+  }
+
   /**
    * Renderiza os Gráficos de Cruzamentos Estatísticos (Comparações)
    */
@@ -402,7 +446,17 @@
     if (typeof Chart === "undefined") return;
 
     const total = filteredData.length;
-    if (total === 0) return;
+    if (total === 0) {
+      destroyChart("chartAgeVsUsage");
+      destroyChart("chartRiskVsUsage");
+      destroyChart("chartPeerInfluence");
+      destroyChart("chartDialogueVsUsage");
+      showChartEmptyState("wrap_chartAgeVsUsage", "Aguardando respostas para correlacionar Idade vs Uso");
+      showChartEmptyState("wrap_chartRiskVsUsage", "Aguardando respostas para correlacionar Percepção de Risco vs Uso");
+      showChartEmptyState("wrap_chartPeerInfluence", "Aguardando respostas para avaliar a Pressão de Pares");
+      showChartEmptyState("wrap_chartDialogueVsUsage", "Aguardando respostas para avaliar o Diálogo Preventivo");
+      return;
+    }
 
     // 1. Idade vs Contato com Vape (Grouped Bar)
     renderChartAgeVsUsage();
@@ -419,7 +473,7 @@
 
   function renderChartAgeVsUsage() {
     destroyChart("chartAgeVsUsage");
-    const ctx = document.getElementById("chartAgeVsUsage");
+    const ctx = ensureCanvas("wrap_chartAgeVsUsage", "chartAgeVsUsage");
     if (!ctx) return;
 
     const ageGroups = ["14 a 15 anos", "16 a 17 anos", "18 anos"];
@@ -458,7 +512,7 @@
 
   function renderChartRiskVsUsage() {
     destroyChart("chartRiskVsUsage");
-    const ctx = document.getElementById("chartRiskVsUsage");
+    const ctx = ensureCanvas("wrap_chartRiskVsUsage", "chartRiskVsUsage");
     if (!ctx) return;
 
     const userCategories = ["Nunca usou", "Usuário Ativo / Ocasional"];
@@ -507,7 +561,7 @@
 
   function renderChartPeerInfluence() {
     destroyChart("chartPeerInfluence");
-    const ctx = document.getElementById("chartPeerInfluence");
+    const ctx = ensureCanvas("wrap_chartPeerInfluence", "chartPeerInfluence");
     if (!ctx) return;
 
     const peerCategories = ["Nenhum", "Poucos (1 ou 2)", "A maioria", "Todos"];
@@ -552,7 +606,7 @@
 
   function renderChartDialogueVsUsage() {
     destroyChart("chartDialogueVsUsage");
-    const ctx = document.getElementById("chartDialogueVsUsage");
+    const ctx = ensureCanvas("wrap_chartDialogueVsUsage", "chartDialogueVsUsage");
     if (!ctx) return;
 
     const dialogues = ["Na escola e em casa", "Apenas na escola", "Apenas em casa", "Nunca conversei sobre isso"];
@@ -603,8 +657,10 @@
 
     if (total === 0) {
       elQuestionsGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-text-muted);">
-          Nenhuma resposta registrada com os filtros selecionados.
+        <div class="empty-state-card" style="grid-column: 1 / -1;">
+          <div class="empty-state-icon">🔬</div>
+          <h3 class="empty-state-title">Aguardando Respostas</h3>
+          <p class="empty-state-desc">Nenhum registro foi encontrado com os filtros selecionados ou o observatório ainda não possui respostas enviadas.</p>
         </div>
       `;
       return;
@@ -747,29 +803,42 @@
     if (!ctx || typeof Chart === "undefined") return;
 
     const dataValues = labels.map(l => counts[l] || 0);
+    const isDonut = labels.length <= 4;
 
     chartInstances[canvasId] = new Chart(ctx, {
-      type: labels.length <= 4 ? 'doughnut' : 'bar',
+      type: isDonut ? 'doughnut' : 'bar',
       data: {
         labels: labels,
         datasets: [{
           data: dataValues,
           backgroundColor: COLOR_PALETTE.slice(0, labels.length),
-          borderRadius: 4
+          borderRadius: isDonut ? 0 : 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        indexAxis: !isDonut ? 'y' : undefined,
+        cutout: isDonut ? '68%' : undefined,
         plugins: {
           legend: {
-            display: labels.length <= 4,
+            display: isDonut,
             position: 'right',
             labels: { boxWidth: 10, font: { size: 10 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const total = dataValues.reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+                return ` ${context.raw} (${pct}%)`;
+              }
+            }
           }
         },
-        scales: labels.length > 4 ? {
-          y: { beginAtZero: true, ticks: { precision: 0 } }
+        scales: !isDonut ? {
+          x: { beginAtZero: true, ticks: { precision: 0 } },
+          y: { grid: { display: false }, ticks: { font: { size: 10 } } }
         } : undefined
       }
     });
@@ -932,6 +1001,7 @@
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   /**
@@ -976,8 +1046,23 @@
     link.download = "qrcode_pesquisa_idomed.svg";
     link.href = downloadUrl;
     link.click();
-    URL.revokeObjectURL(downloadUrl);
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
   };
+
+  // Listeners do Modal QR Code (Backdrop & Teclado)
+  if (elQrModal) {
+    elQrModal.addEventListener("click", function(e) {
+      if (e.target === elQrModal) {
+        window.closeQrModal();
+      }
+    });
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && elQrModal && elQrModal.style.display === "flex") {
+      window.closeQrModal();
+    }
+  });
 
   // Inicializa o script
   init();

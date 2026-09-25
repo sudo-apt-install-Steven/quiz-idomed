@@ -25,6 +25,7 @@
   let previousAgeSelection = null;
   let previousSchoolYear = null;
   let isSubmitting = false;
+  let isTransitioning = false;
   let submissionToken = generateUUID();
 
   // Elementos do DOM
@@ -142,6 +143,7 @@
    * Fecha o Modal de Ano Escolar restaurando com segurança o estado anterior
    */
   function closeSchoolYearModal() {
+    isTransitioning = false;
     elSchoolYearModal.classList.remove("is-open");
     elSchoolYearModal.setAttribute("aria-hidden", "true");
 
@@ -180,6 +182,8 @@
    * Confirma a seleção de Ano Escolar e avança para a Questão 2
    */
   function handleSelectSchoolYear(yearText, btnElement) {
+    if (isSubmitting || isTransitioning) return;
+    isTransitioning = true;
     triggerHaptic(18);
 
     const allButtons = elSchoolYearOptions.querySelectorAll(".school-year-btn");
@@ -239,7 +243,7 @@
    * Trata o clique de Idade na Questão 1 (Abre Etapa 2 de Ano Escolar)
    */
   function handleSelectAgeOption(optText, btnElement) {
-    if (isSubmitting) return;
+    if (isSubmitting || isTransitioning) return;
 
     triggerHaptic(12);
 
@@ -297,6 +301,7 @@
       
       requestAnimationFrame(() => {
         elQuestionText.classList.remove("transitioning-in");
+        isTransitioning = false;
       });
     }, 140);
 
@@ -353,6 +358,12 @@
         leftWrap.appendChild(subBadge);
       }
 
+      // Atalho de Teclado Visual (Desktop)
+      const kbdHint = document.createElement("span");
+      kbdHint.className = "option-kbd-hint";
+      kbdHint.setAttribute("aria-hidden", "true");
+      kbdHint.textContent = `${optIdx + 1}`;
+
       // Marcador circular direito
       const marker = document.createElement("div");
       marker.className = "option-marker";
@@ -363,6 +374,7 @@
       `;
 
       btn.appendChild(leftWrap);
+      btn.appendChild(kbdHint);
       btn.appendChild(marker);
 
       if (currentIndex === 0) {
@@ -379,7 +391,8 @@
    * Manipula a seleção de uma alternativa com feedback tátil e sonoro/háptico
    */
   function handleSelectOption(optionText, btnElement) {
-    if (isSubmitting) return;
+    if (isSubmitting || isTransitioning) return;
+    isTransitioning = true;
 
     triggerHaptic(14);
 
@@ -409,7 +422,8 @@
    * Retorna para a pergunta anterior
    */
   window.handlePreviousQuestion = function() {
-    if (currentIndex > 0 && !isSubmitting) {
+    if (currentIndex > 0 && !isSubmitting && !isTransitioning) {
+      isTransitioning = true;
       triggerHaptic(8);
       currentIndex--;
       renderQuestion("backward");
@@ -495,6 +509,7 @@
     }
 
     isSubmitting = false;
+    isTransitioning = false;
 
     if (success) {
       triggerHaptic(25);
@@ -524,8 +539,11 @@
     userAnswers = new Array(questions.length).fill(null);
     selectedSchoolYear = null;
     pendingAgeSelection = null;
+    previousAgeSelection = null;
+    previousSchoolYear = null;
     submissionToken = generateUUID();
     isSubmitting = false;
+    isTransitioning = false;
 
     if (elSchoolYearModal) {
       elSchoolYearModal.classList.remove("is-open");
@@ -550,6 +568,8 @@
 
   // Suporte a atalhos de teclado para acessibilidade
   document.addEventListener("keydown", function(e) {
+    if (isSubmitting || isTransitioning) return;
+
     // Se o modal estiver aberto
     if (elSchoolYearModal && elSchoolYearModal.classList.contains("is-open")) {
       if (e.key === "Escape") {
@@ -584,16 +604,27 @@
   if (sheetEl) {
     let touchStartY = 0;
     let currentDeltaY = 0;
+    let canDrag = false;
 
     sheetEl.addEventListener("touchstart", function(e) {
       if (e.touches && e.touches.length === 1) {
-        touchStartY = e.touches[0].clientY;
-        currentDeltaY = 0;
+        const target = e.target;
+        const isHeaderOrHandle = target.closest(".sheet-drag-handle") || target.closest(".school-year-header");
+        const optionsEl = document.getElementById("schoolYearOptions");
+        const isAtTop = !optionsEl || optionsEl.scrollTop <= 0;
+
+        if (isHeaderOrHandle || isAtTop) {
+          touchStartY = e.touches[0].clientY;
+          currentDeltaY = 0;
+          canDrag = true;
+        } else {
+          canDrag = false;
+        }
       }
     }, { passive: true });
 
     sheetEl.addEventListener("touchmove", function(e) {
-      if (e.touches && e.touches.length === 1 && touchStartY > 0) {
+      if (canDrag && e.touches && e.touches.length === 1 && touchStartY > 0) {
         const delta = e.touches[0].clientY - touchStartY;
         if (delta > 0) {
           currentDeltaY = delta;
@@ -602,14 +633,18 @@
       }
     }, { passive: true });
 
-    sheetEl.addEventListener("touchend", function() {
+    const finishTouch = function() {
       sheetEl.style.transform = "";
-      if (currentDeltaY > 70) {
+      if (canDrag && currentDeltaY > 70) {
         closeSchoolYearModal();
       }
       touchStartY = 0;
       currentDeltaY = 0;
-    }, { passive: true });
+      canDrag = false;
+    };
+
+    sheetEl.addEventListener("touchend", finishTouch, { passive: true });
+    sheetEl.addEventListener("touchcancel", finishTouch, { passive: true });
   }
 
   // Inicialização
