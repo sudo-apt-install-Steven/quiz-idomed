@@ -20,6 +20,7 @@
 
   // Filtros Ativos
   let filterAge = "ALL";
+  let filterSchoolYear = "ALL";
   let filterContact = "ALL";
 
   // Registro de Instâncias do Chart.js para destruição segura ao re-renderizar
@@ -194,11 +195,18 @@
    */
   window.applyFilters = function() {
     filterAge = document.getElementById("filterAge").value;
+    const elSchoolYear = document.getElementById("filterSchoolYear");
+    filterSchoolYear = elSchoolYear ? elSchoolYear.value : "ALL";
     filterContact = document.getElementById("filterContact").value;
 
     filteredData = cachedData.filter(row => {
       // Filtro por Idade
       if (filterAge !== "ALL" && row.q1_faixa_etaria !== filterAge) {
+        return false;
+      }
+
+      // Filtro por Ano Escolar
+      if (filterSchoolYear !== "ALL" && row.q1_ano_escolar !== filterSchoolYear) {
         return false;
       }
 
@@ -216,7 +224,7 @@
       return true;
     });
 
-    const isFiltered = (filterAge !== "ALL" || filterContact !== "ALL");
+    const isFiltered = (filterAge !== "ALL" || filterSchoolYear !== "ALL" || filterContact !== "ALL");
     elFilterStatusBadge.textContent = isFiltered
       ? `Filtrado: ${filteredData.length} de ${cachedData.length} registros`
       : `Exibindo todos os ${cachedData.length} registros`;
@@ -231,6 +239,8 @@
 
   window.resetFilters = function() {
     document.getElementById("filterAge").value = "ALL";
+    const elSchoolYear = document.getElementById("filterSchoolYear");
+    if (elSchoolYear) elSchoolYear.value = "ALL";
     document.getElementById("filterContact").value = "ALL";
     applyFilters();
   };
@@ -592,8 +602,10 @@
       card.className = "q-stat-card";
 
       const canvasId = `chart_q_${q.id}`;
+      const cardTitle = q.id === 1 ? '1A. Faixa Etária (Idade)' : `${q.id}. ${q.q}`;
+
       card.innerHTML = `
-        <h3 class="q-stat-title">${q.id}. ${q.q}</h3>
+        <h3 class="q-stat-title">${cardTitle}</h3>
         <div class="q-chart-wrap">
           <canvas id="${canvasId}"></canvas>
         </div>
@@ -638,6 +650,68 @@
 
       // Renderiza Gráfico Chart.js (Doughnut ou Bar)
       renderQuestionChart(canvasId, q.options, counts);
+
+      // Se for a Questão 1 e possuir opções de ano escolar, gera um card analítico dedicado
+      if (q.id === 1 && q.schoolYearOptions) {
+        const yearCounts = {};
+        q.schoolYearOptions.forEach(opt => yearCounts[opt] = 0);
+
+        filteredData.forEach(row => {
+          const val = row.q1_ano_escolar;
+          if (val && yearCounts[val] !== undefined) {
+            yearCounts[val]++;
+          } else if (val) {
+            yearCounts[val] = (yearCounts[val] || 0) + 1;
+          }
+        });
+
+        const yearCard = document.createElement("div");
+        yearCard.className = "q-stat-card";
+        const yearCanvasId = `chart_q_1_ano`;
+        yearCard.innerHTML = `
+          <h3 class="q-stat-title">1B. Ano Escolar (Distribuição)</h3>
+          <div class="q-chart-wrap">
+            <canvas id="${yearCanvasId}"></canvas>
+          </div>
+          <table class="freq-table">
+            <thead>
+              <tr>
+                <th>Ano Escolar</th>
+                <th style="text-align: right;">N</th>
+                <th style="text-align: right;">%</th>
+              </tr>
+            </thead>
+            <tbody id="tbody_${yearCanvasId}"></tbody>
+          </table>
+        `;
+        elQuestionsGrid.appendChild(yearCard);
+
+        const yearTbody = document.getElementById(`tbody_${yearCanvasId}`);
+        let maxYearCount = -1;
+        let topYearOption = "";
+        Object.keys(yearCounts).forEach(opt => {
+          if (yearCounts[opt] > maxYearCount) {
+            maxYearCount = yearCounts[opt];
+            topYearOption = opt;
+          }
+        });
+
+        Object.keys(yearCounts).forEach(opt => {
+          const count = yearCounts[opt];
+          const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+          const isTop = opt === topYearOption && count > 0;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${opt} ${isTop ? '<span class="badge-top">Líder</span>' : ''}</td>
+            <td class="num">${count}</td>
+            <td class="num">${pct}%</td>
+          `;
+          yearTbody.appendChild(tr);
+        });
+
+        renderQuestionChart(yearCanvasId, q.schoolYearOptions, yearCounts);
+      }
     });
   }
 
@@ -704,7 +778,7 @@
     if (currentRows.length === 0) {
       elTableBody.innerHTML = `
         <tr>
-          <td colspan="11" style="text-align: center; padding: 24px; color: var(--color-text-muted);">
+          <td colspan="12" style="text-align: center; padding: 24px; color: var(--color-text-muted);">
             Nenhum registro encontrado para a busca.
           </td>
         </tr>
@@ -719,6 +793,7 @@
         tr.innerHTML = `
           <td><strong>${formattedDate}</strong></td>
           <td>${row.q1_faixa_etaria || "-"}</td>
+          <td>${row.q1_ano_escolar || "-"}</td>
           <td>${row.q2_contato_vape || "-"}</td>
           <td>${row.q3_idade_primeiro_contato || "-"}</td>
           <td>${row.q4_dispositivo_popular || "-"}</td>
@@ -781,7 +856,8 @@
     const headers = [
       "ID",
       "Data/Hora (UTC)",
-      "1. Faixa Etária e Ano Escolar",
+      "1A. Faixa Etária (Idade)",
+      "1B. Ano Escolar",
       "2. Contato com Cigarro Eletrônico",
       "3. Idade do Primeiro Contato",
       "4. Dispositivo Mais Popular",
@@ -797,6 +873,7 @@
       `"${r.id || ""}"`,
       `"${r.created_at || ""}"`,
       `"${(r.q1_faixa_etaria || "").replace(/"/g, '""')}"`,
+      `"${(r.q1_ano_escolar || "").replace(/"/g, '""')}"`,
       `"${(r.q2_contato_vape || "").replace(/"/g, '""')}"`,
       `"${(r.q3_idade_primeiro_contato || "").replace(/"/g, '""')}"`,
       `"${(r.q4_dispositivo_popular || "").replace(/"/g, '""')}"`,

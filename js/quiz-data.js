@@ -6,11 +6,22 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 1,
     field: "q1_faixa_etaria",
+    subField: "q1_ano_escolar",
+    hasSubStep: true,
     q: "Qual é a sua idade e ano escolar?",
+    step1Title: "1. Qual é a sua idade?",
+    step2Title: "Qual é o seu ano escolar?",
     options: [
       "14 a 15 anos",
       "16 a 17 anos",
       "18 anos"
+    ],
+    schoolYearOptions: [
+      "9º ano (Ensino Fundamental)",
+      "1º ano (Ensino Médio)",
+      "2º ano (Ensino Médio)",
+      "3º ano (Ensino Médio)",
+      "Cursinho / Já concluí"
     ]
   },
   {

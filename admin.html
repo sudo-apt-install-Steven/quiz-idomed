@@ -110,6 +110,17 @@
               <option value="FREQUENT">Uso Frequente</option>
             </select>
           </div>
+          <div class="filter-item">
+            <label for="filterSchoolYear">Ano Escolar:</label>
+            <select id="filterSchoolYear" onchange="applyFilters()">
+              <option value="ALL">Todos os Anos</option>
+              <option value="9º ano (Ensino Fundamental)">9º ano (Fundamental)</option>
+              <option value="1º ano (Ensino Médio)">1º ano (Médio)</option>
+              <option value="2º ano (Ensino Médio)">2º ano (Médio)</option>
+              <option value="3º ano (Ensino Médio)">3º ano (Médio)</option>
+              <option value="Cursinho / Já concluí">Cursinho / Concluído</option>
+            </select>
+          </div>
           <button type="button" class="btn-clear-filter" onclick="resetFilters()">
             ✕ Limpar Filtros
           </button>
@@ -252,6 +263,7 @@
               <tr>
                 <th scope="col">Data/Hora (UTC)</th>
                 <th scope="col">Q1 Faixa Etária</th>
+                <th scope="col">Q1 Ano Escolar</th>
                 <th scope="col">Q2 Contato Vape</th>
                 <th scope="col">Q3 1º Contato</th>
                 <th scope="col">Q4 Dispositivo</th>

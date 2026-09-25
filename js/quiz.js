@@ -20,6 +20,8 @@
   // Estado da Aplicação
   let currentIndex = 0;
   let userAnswers = new Array(questions.length).fill(null);
+  let selectedSchoolYear = null;
+  let pendingAgeSelection = null;
   let isSubmitting = false;
   let submissionToken = generateUUID();
 
@@ -35,6 +37,13 @@
   const elProgressText = document.getElementById("progressText");
   const elProgressPercent = document.getElementById("progressPercent");
   const elBtnBack = document.getElementById("btnBack");
+
+  // Elementos do Modal de Ano Escolar (Etapa 2 da Questão 1)
+  const elSchoolYearModal = document.getElementById("schoolYearModal");
+  const elSchoolYearBackdrop = document.getElementById("schoolYearBackdrop");
+  const elSchoolYearOptions = document.getElementById("schoolYearOptions");
+  const elSelectedAgeBadge = document.getElementById("selectedAgeBadge");
+  const elBtnCancelSchoolYear = document.getElementById("btnCancelSchoolYear");
 
   /**
    * Dispara vibração háptica sutil em dispositivos móveis compatíveis
@@ -61,6 +70,161 @@
       const v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+
+  /**
+   * Abre o Modal / Bottom-Sheet para seleção do Ano Escolar
+   */
+  function openSchoolYearModal(ageText) {
+    pendingAgeSelection = ageText;
+    if (elSelectedAgeBadge) {
+      elSelectedAgeBadge.textContent = ageText;
+    }
+
+    const q1 = questions[0];
+    const yearOptions = q1.schoolYearOptions || [
+      "9º ano (Ensino Fundamental)",
+      "1º ano (Ensino Médio)",
+      "2º ano (Ensino Médio)",
+      "3º ano (Ensino Médio)",
+      "Cursinho / Já concluí"
+    ];
+
+    elSchoolYearOptions.innerHTML = "";
+
+    yearOptions.forEach((yearOpt, yIdx) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "school-year-btn";
+      btn.setAttribute("role", "radio");
+      btn.setAttribute("aria-checked", selectedSchoolYear === yearOpt ? "true" : "false");
+
+      if (selectedSchoolYear === yearOpt) {
+        btn.classList.add("selected");
+      }
+
+      const letterBadge = document.createElement("span");
+      letterBadge.className = "opt-badge";
+      letterBadge.textContent = OPTION_LETTERS[yIdx] || (yIdx + 1);
+
+      const labelSpan = document.createElement("span");
+      labelSpan.style.flex = "1";
+      labelSpan.textContent = yearOpt;
+
+      const checkCircle = document.createElement("span");
+      checkCircle.className = "opt-check";
+      checkCircle.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `;
+
+      btn.appendChild(letterBadge);
+      btn.appendChild(labelSpan);
+      btn.appendChild(checkCircle);
+
+      btn.addEventListener("click", () => handleSelectSchoolYear(yearOpt, btn));
+      elSchoolYearOptions.appendChild(btn);
+    });
+
+    elSchoolYearModal.classList.add("is-open");
+    elSchoolYearModal.setAttribute("aria-hidden", "false");
+    triggerHaptic(14);
+  }
+
+  /**
+   * Fecha o Modal de Ano Escolar
+   */
+  function closeSchoolYearModal() {
+    elSchoolYearModal.classList.remove("is-open");
+    elSchoolYearModal.setAttribute("aria-hidden", "true");
+
+    // Se o usuário não confirmou o ano escolar, desmarca a opção provisória na tela principal
+    if (!selectedSchoolYear) {
+      const allButtons = elOptionsList.querySelectorAll(".option-item");
+      allButtons.forEach(b => {
+        b.classList.remove("selected");
+        b.setAttribute("aria-checked", "false");
+      });
+      userAnswers[0] = null;
+    }
+  }
+
+  /**
+   * Confirma a seleção de Ano Escolar e avança para a Questão 2
+   */
+  function handleSelectSchoolYear(yearText, btnElement) {
+    triggerHaptic(18);
+
+    const allButtons = elSchoolYearOptions.querySelectorAll(".school-year-btn");
+    allButtons.forEach(b => {
+      b.classList.remove("selected");
+      b.setAttribute("aria-checked", "false");
+    });
+
+    btnElement.classList.add("selected");
+    btnElement.setAttribute("aria-checked", "true");
+
+    selectedSchoolYear = yearText;
+    userAnswers[0] = pendingAgeSelection;
+
+    // Atualiza botão correspondente na lista principal
+    const mainButtons = elOptionsList.querySelectorAll(".option-item");
+    mainButtons.forEach(b => {
+      const label = b.querySelector(".option-label");
+      if (label && label.textContent === pendingAgeSelection) {
+        b.classList.add("selected");
+        b.setAttribute("aria-checked", "true");
+        let subBadge = b.querySelector(".option-sub-badge");
+        if (!subBadge) {
+          subBadge = document.createElement("span");
+          subBadge.className = "option-sub-badge";
+          b.querySelector(".option-left-content").appendChild(subBadge);
+        }
+        subBadge.textContent = `✓ ${yearText}`;
+      } else {
+        b.classList.remove("selected");
+        b.setAttribute("aria-checked", "false");
+        const subBadge = b.querySelector(".option-sub-badge");
+        if (subBadge) subBadge.remove();
+      }
+    });
+
+    // Fecha o modal suavemente e avança para a próxima pergunta
+    setTimeout(() => {
+      elSchoolYearModal.classList.remove("is-open");
+      elSchoolYearModal.setAttribute("aria-hidden", "true");
+
+      setTimeout(() => {
+        if (currentIndex + 1 < questions.length) {
+          currentIndex++;
+          renderQuestion("forward");
+        } else {
+          submitQuizAnswers();
+        }
+      }, 160);
+    }, 220);
+  }
+
+  /**
+   * Trata o clique de Idade na Questão 1 (Abre Etapa 2 de Ano Escolar)
+   */
+  function handleSelectAgeOption(optText, btnElement) {
+    if (isSubmitting) return;
+
+    triggerHaptic(12);
+
+    const allButtons = elOptionsList.querySelectorAll(".option-item");
+    allButtons.forEach(b => {
+      b.classList.remove("selected");
+      b.setAttribute("aria-checked", "false");
+    });
+
+    btnElement.classList.add("selected");
+    btnElement.setAttribute("aria-checked", "true");
+
+    // Abre o popup/bottom-sheet para escolha do ano escolar
+    openSchoolYearModal(optText);
   }
 
   /**
@@ -103,6 +267,20 @@
     elOptionsList.innerHTML = "";
     const previouslySelected = userAnswers[currentIndex];
 
+    // Se for a Questão 1, insere hint indicando as etapas de idade e ano escolar
+    if (currentIndex === 0) {
+      const hint = document.createElement("div");
+      hint.className = "question-step-hint";
+      hint.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Passo 1 de 2: Selecione a sua faixa etária</span>
+      `;
+      elOptionsList.appendChild(hint);
+    }
+
     currentQ.options.forEach((optText, optIdx) => {
       const btn = document.createElement("button");
       btn.type = "button";
@@ -115,7 +293,7 @@
         btn.classList.add("selected");
       }
 
-      // Conteúdo à esquerda (Letra + Texto)
+      // Conteúdo à esquerda (Letra + Texto + Sub-Badge se houver)
       const leftWrap = document.createElement("div");
       leftWrap.className = "option-left-content";
 
@@ -130,6 +308,14 @@
       leftWrap.appendChild(letterBadge);
       leftWrap.appendChild(spanLabel);
 
+      // Se for a Questão 1 e já tiver ano escolar registrado nesta idade
+      if (currentIndex === 0 && previouslySelected === optText && selectedSchoolYear) {
+        const subBadge = document.createElement("span");
+        subBadge.className = "option-sub-badge";
+        subBadge.textContent = `✓ ${selectedSchoolYear}`;
+        leftWrap.appendChild(subBadge);
+      }
+
       // Marcador circular direito
       const marker = document.createElement("div");
       marker.className = "option-marker";
@@ -142,7 +328,12 @@
       btn.appendChild(leftWrap);
       btn.appendChild(marker);
 
-      btn.addEventListener("click", () => handleSelectOption(optText, btn));
+      if (currentIndex === 0) {
+        btn.addEventListener("click", () => handleSelectAgeOption(optText, btn));
+      } else {
+        btn.addEventListener("click", () => handleSelectOption(optText, btn));
+      }
+
       elOptionsList.appendChild(btn);
     });
   }
@@ -203,7 +394,8 @@
 
     const payload = {
       submission_token: submissionToken,
-      answers: userAnswers
+      answers: userAnswers,
+      q1_ano_escolar: selectedSchoolYear || null
     };
 
     let success = false;
@@ -232,6 +424,7 @@
         const rpcPayload = {
           p_submission_token: submissionToken,
           p_q1: userAnswers[0] || "",
+          p_q1_ano: selectedSchoolYear || null,
           p_q2: userAnswers[1] || "",
           p_q3: userAnswers[2] || "",
           p_q4: userAnswers[3] || "",
@@ -292,8 +485,15 @@
     triggerHaptic(15);
     currentIndex = 0;
     userAnswers = new Array(questions.length).fill(null);
+    selectedSchoolYear = null;
+    pendingAgeSelection = null;
     submissionToken = generateUUID();
     isSubmitting = false;
+
+    if (elSchoolYearModal) {
+      elSchoolYearModal.classList.remove("is-open");
+      elSchoolYearModal.setAttribute("aria-hidden", "true");
+    }
 
     elSuccessState.style.display = "none";
     elErrorState.style.display = "none";
@@ -303,8 +503,32 @@
     renderQuestion("forward");
   };
 
+  // Listeners do Modal de Ano Escolar
+  if (elSchoolYearBackdrop) {
+    elSchoolYearBackdrop.addEventListener("click", closeSchoolYearModal);
+  }
+  if (elBtnCancelSchoolYear) {
+    elBtnCancelSchoolYear.addEventListener("click", closeSchoolYearModal);
+  }
+
   // Suporte a atalhos de teclado para acessibilidade
   document.addEventListener("keydown", function(e) {
+    // Se o modal estiver aberto
+    if (elSchoolYearModal && elSchoolYearModal.classList.contains("is-open")) {
+      if (e.key === "Escape") {
+        closeSchoolYearModal();
+        return;
+      }
+      if (e.key >= "1" && e.key <= "5") {
+        const idx = parseInt(e.key, 10) - 1;
+        const buttons = elSchoolYearOptions.querySelectorAll(".school-year-btn");
+        if (buttons[idx]) {
+          buttons[idx].click();
+        }
+        return;
+      }
+    }
+
     if (elQuizContainer.style.display === "none") return;
 
     if (e.key === "ArrowLeft" && currentIndex > 0) {

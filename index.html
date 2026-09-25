@@ -124,6 +124,33 @@
     </main>
   </div>
 
+  <!-- Modal Interativo / Bottom-Sheet: Seleção de Ano Escolar (Etapa 2 da Questão 1) -->
+  <div class="school-year-modal" id="schoolYearModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="school-year-backdrop" id="schoolYearBackdrop"></div>
+    <div class="school-year-sheet">
+      <div class="sheet-drag-handle" aria-hidden="true"></div>
+      
+      <div class="school-year-header">
+        <span class="step-pill">Etapa 2 de 2</span>
+        <h3 class="school-year-title">Qual é o seu ano escolar?</h3>
+        <p class="school-year-desc">
+          Idade selecionada: <span class="selected-age-chip" id="selectedAgeBadge">14 a 15 anos</span>
+        </p>
+      </div>
+
+      <div class="school-year-options" id="schoolYearOptions" role="radiogroup" aria-label="Selecione seu ano escolar">
+        <!-- Renderizado dinamicamente via js/quiz.js -->
+      </div>
+
+      <button type="button" class="btn-cancel-sheet" id="btnCancelSchoolYear" aria-label="Voltar para alterar a idade">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Alterar faixa etária</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Scripts Modularizados da Aplicação -->
   <script src="js/config.js"></script>
   <script src="js/quiz-data.js"></script>

@@ -26,6 +26,14 @@ const ALLOWED_OPTIONS = [
   ["Na escola e em casa", "Apenas na escola", "Apenas em casa", "Nunca conversei sobre isso"]
 ];
 
+const ALLOWED_SCHOOL_YEARS = [
+  "9º ano (Ensino Fundamental)",
+  "1º ano (Ensino Médio)",
+  "2º ano (Ensino Médio)",
+  "3º ano (Ensino Médio)",
+  "Cursinho / Já concluí"
+];
+
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://awetqrqxvosoejxnwlsx.supabase.co";
@@ -58,7 +66,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const { submission_token, answers } = body;
+    const { submission_token, answers, q1_ano_escolar } = body;
 
     // 1. Validação do Token de Idempotência
     if (!submission_token || !UUID_REGEX.test(submission_token)) {
@@ -88,10 +96,19 @@ export default async function handler(req, res) {
       }
     }
 
+    // 3.1. Validação Opcional de Ano Escolar (Etapa 2 da Questão 1)
+    if (q1_ano_escolar && !ALLOWED_SCHOOL_YEARS.includes(q1_ano_escolar)) {
+      return res.status(400).json({
+        success: false,
+        error: "Opção de ano escolar selecionada é inválida."
+      });
+    }
+
     // 4. Envio Atômico para o Supabase via RPC
     const rpcPayload = {
       p_submission_token: submission_token,
       p_q1: answers[0],
+      p_q1_ano: q1_ano_escolar || null,
       p_q2: answers[1],
       p_q3: answers[2],
       p_q4: answers[3],

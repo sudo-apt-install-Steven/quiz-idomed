@@ -705,3 +705,270 @@
     padding: 8px 12px;
   }
 }
+
+/* ==========================================================================
+   8. Modal / Bottom-Sheet: Seleção de Ano Escolar (Etapa 2 da Questão 1)
+   ========================================================================== */
+.school-year-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+
+.school-year-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.school-year-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.school-year-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  padding: 16px 20px 28px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.22);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.school-year-modal.is-open .school-year-sheet {
+  transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .school-year-modal {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .school-year-sheet {
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    transform: scale(0.94) translateY(20px);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+    opacity: 0;
+  }
+
+  .school-year-modal.is-open .school-year-sheet {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.sheet-drag-handle {
+  width: 44px;
+  height: 5px;
+  background: #cbd5e1;
+  border-radius: 999px;
+  margin: 0 auto 14px;
+}
+
+.school-year-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.step-pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: rgba(0, 59, 113, 0.08);
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.school-year-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin-bottom: 6px;
+}
+
+.school-year-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.selected-age-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #003b71;
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.school-year-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.school-year-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 16px;
+  min-height: 52px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e293b;
+  text-align: left;
+  transition: all 0.18s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.school-year-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.school-year-btn:active {
+  transform: scale(0.985);
+  background: #e2e8f0;
+}
+
+.school-year-btn.selected {
+  background: #f0fdfa;
+  border-color: #00a896;
+  color: #003b71;
+  box-shadow: 0 4px 14px rgba(0, 168, 150, 0.18);
+}
+
+.school-year-btn .opt-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-right: 12px;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.school-year-btn.selected .opt-badge {
+  background: #00a896;
+  color: #ffffff;
+}
+
+.school-year-btn .opt-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  margin-left: 10px;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.school-year-btn.selected .opt-check {
+  border-color: #00a896;
+  background: #00a896;
+}
+
+.school-year-btn .opt-check svg {
+  width: 14px;
+  height: 14px;
+  color: #ffffff;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.18s ease;
+}
+
+.school-year-btn.selected .opt-check svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.btn-cancel-sheet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-cancel-sheet:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.btn-cancel-sheet:active {
+  background: #e2e8f0;
+}
+
+/* Indicador de sub-resposta e hint de etapas */
+.option-sub-badge {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #00a896;
+  margin-top: 3px;
+}
+
+.question-step-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
