@@ -989,3 +989,84 @@
   color: #38bdf8;
 }
 
+[data-theme="dark"] .system-status-indicator {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+[data-theme="dark"] .insights-panel {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.25) 0%, rgba(16, 26, 48, 0.85) 100%);
+  border-color: rgba(20, 184, 166, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .insights-header h3 {
+  color: #34d399;
+}
+
+[data-theme="dark"] .insights-body {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .insights-body strong {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .insights-body em {
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .btn-clear-filter {
+  background-color: rgba(30, 51, 90, 0.6);
+  border-color: var(--color-border);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .btn-clear-filter:hover {
+  background-color: rgba(30, 51, 90, 0.95);
+  color: #ffffff;
+  border-color: var(--color-secondary);
+}
+
+[data-theme="dark"] .filter-item label {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .filter-item select {
+  background-color: #0b1424;
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+[data-theme="dark"] .filter-active-status {
+  background: rgba(20, 184, 166, 0.18);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+[data-theme="dark"] .metric-card-label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .metric-card-sub {
+  color: #2dd4bf;
+}
+
+[data-theme="dark"] .chart-empty-state .empty-state-msg {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .empty-state-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .empty-state-card .empty-state-title {
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .empty-state-card .empty-state-desc {
+  color: var(--color-text-muted);
+}
+

@@ -36,9 +36,11 @@
 </head>
 <body>
 
-  <!-- Barras de Relance Ambiental Institucional (Superior e Inferior) -->
+  <!-- Barras e Auras de Relance Ambiental Institucional (Superior e Inferior) -->
   <div class="ambient-glance-top" aria-hidden="true"></div>
+  <div class="ambient-aurora-top" aria-hidden="true"></div>
   <div class="ambient-glance-bottom" aria-hidden="true"></div>
+  <div class="ambient-aurora-bottom" aria-hidden="true"></div>
 
   <div class="quiz-wrapper">
     <main class="quiz-card" role="main">
@@ -118,33 +120,50 @@
         </footer>
 
         <div class="keyboard-hints" aria-hidden="true">
-          <span><kbd>1</kbd>–<kbd>5</kbd> Selecionar alternativa</span>
+          <span><kbd>1</kbd>–<kbd id="keyboardMaxHint">5</kbd> Selecionar alternativa</span>
           <span><kbd>←</kbd> Voltar</span>
         </div>
 
+        <!-- Campo Honeypot Oculto para Detecção de Bots -->
+        <input type="text" name="idomed_hp_verification" id="idomedHoneypot" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" tabindex="-1" autocomplete="off" aria-hidden="true">
+
       </section>
 
-      <!-- Tela de Envio / Carregamento com Monitor Clínico de Sinais Vitais & Resiliência a Conexões Lentas -->
+      <!-- Tela de Envio / Carregamento com Monitor Clínico de Sinais Vitais & Barra de Carregamento Temática -->
       <section class="state-panel" id="loadingStatePanel" aria-live="assertive">
         <div class="medical-monitor-box">
           <div class="medical-monitor-header">
-            <span>Monitor Clínico Bioético</span>
+            <span>Monitor Clínico Bioético • IDOMED</span>
             <span class="vital-rate-badge">
               <span class="vital-heart-pulse" aria-hidden="true">❤️</span>
-              <span>Sinal Vital Ativo</span>
+              <span id="vitalRateValue">72 BPM • Sinal Ativo</span>
             </span>
           </div>
+
+          <!-- Osciloscópio / Traçado ECG -->
           <div class="ecg-monitor-display" aria-hidden="true">
             <div class="ecg-grid-overlay"></div>
             <svg class="ecg-svg-wave" viewBox="0 0 300 60" preserveAspectRatio="none">
               <path class="ecg-path-trace" d="M 0 30 L 40 30 Q 50 20 60 30 L 80 30 L 90 35 L 100 5 L 110 55 L 120 30 L 140 30 Q 155 18 170 30 L 220 30 L 230 35 L 240 5 L 250 55 L 260 30 L 300 30" />
             </svg>
           </div>
-          <div class="medical-loading-bar-track" aria-hidden="true">
-            <div class="medical-loading-bar-fill"></div>
+
+          <!-- Barra de Carregamento Médica Vital & Temática -->
+          <div class="medical-telemetry-wrap">
+            <div class="telemetry-labels">
+              <span class="telemetry-phase" id="telemetryPhaseText">Iniciando protocolo bioestatístico...</span>
+              <span class="telemetry-pct" id="telemetryPercentText">15%</span>
+            </div>
+            <div class="medical-vital-track" aria-hidden="true">
+              <div class="medical-vital-fill" id="medicalVitalFill" style="width: 15%;">
+                <span class="vital-needle-head"></span>
+              </div>
+            </div>
           </div>
+
+          <!-- Alerta Adaptativo de Conexão Lenta -->
           <div class="slow-connection-warning" id="slowConnectionWarning" role="status">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px;">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -155,6 +174,7 @@
             </div>
           </div>
         </div>
+
         <h2 class="state-headline" id="loadingHeadline">Gravando respostas...</h2>
         <p class="state-description" id="loadingDescription">Registrando suas informações com segurança criptográfica e anonimato absoluto nos servidores da pesquisa.</p>
       </section>
@@ -204,27 +224,48 @@
         </div>
       </section>
 
-      <!-- Tela de Sucesso com SVG Animado -->
+      <!-- Tela de Sucesso Oficial com Comprovante e Selo de Integridade -->
       <section class="state-panel" id="successStatePanel" aria-live="polite">
         <div class="success-checkmark-wrap" aria-hidden="true">
           <svg class="success-svg-check" viewBox="0 0 52 52">
             <path d="M14 27 l8 8 l16 -16"/>
           </svg>
         </div>
-        <span class="success-stamp">Submissão Confirmada</span>
-        <h2 class="state-headline">Obrigado por participar!</h2>
+        <span class="success-stamp">Submissão Oficialmente Confirmada</span>
+        <h2 class="state-headline">Obrigado por sua colaboração!</h2>
         <p class="state-description">
-          Sua colaboração é fundamental para a análise científica sobre a saúde dos jovens em Ji-Paraná e região.
+          Sua resposta foi criptografada e integrada com sucesso ao banco bioestatístico da pesquisa IDOMED - Medicina sobre a saúde dos jovens.
         </p>
 
-        <div class="privacy-box">
-          <strong>Garantia de Anonimato Institucional:</strong>
-          Esta pesquisa foi desenvolvida com foco total em privacidade e bioética. Nenhum nome, e-mail, telefone, endereço IP ou dados pessoais foram solicitados ou gravados.
+        <div class="protocol-box">
+          <div class="protocol-row">
+            <span class="protocol-label">Comprovante Anônimo:</span>
+            <span class="protocol-val" id="successReceiptCode">MED-CONFIRMADO</span>
+          </div>
+          <div class="protocol-row">
+            <span class="protocol-label">Rigor Metodológico:</span>
+            <span class="protocol-val success">✓ Dispositivo Selado (Anti-Duplicidade)</span>
+          </div>
+          <div class="protocol-row">
+            <span class="protocol-label">Garantia Bioética:</span>
+            <span class="protocol-val">100% Anônimo • RLS e Criptografia Ativos</span>
+          </div>
         </div>
 
-        <button type="button" class="btn-primary" onclick="resetQuizFlow()">
-          Responder Novamente
-        </button>
+        <div class="device-sharing-box" style="margin-top: 18px;">
+          <p class="sharing-note">
+            <strong>Dispositivo compartilhado em sala ou laboratório?</strong> Caso este aparelho seja utilizado por outro estudante da turma, faça a liberação supervisionada:
+          </p>
+          <button type="button" class="btn-share-device" onclick="confirmResetForNewParticipant()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Liberar Aparelho para Novo Participante</span>
+          </button>
+        </div>
       </section>
 
       <!-- Tela de Erro / Falha de Conexão -->

@@ -39,6 +39,32 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://awetqrqxvosoejxnwlsx.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZXRxcnF4dm9zb2VqeG53bHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODEyMzUsImV4cCI6MjEwNTg1NzIzNX0.bMHSB_mN6U5kYf2578n9mZo3IY9g_jfqkdXMN7EqI3o";
 
+// Rate Limiter em Memória para prevenção anti-fraude / anti-DDoS (máx 15 requisições por 5 minutos por IP)
+const ipRateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 15;
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const entry = ipRateLimitMap.get(ip);
+  if (!entry || (now - entry.startTime) > RATE_LIMIT_WINDOW_MS) {
+    ipRateLimitMap.set(ip, { startTime: now, count: 1 });
+    if (ipRateLimitMap.size > 1000) {
+      for (const [key, value] of ipRateLimitMap.entries()) {
+        if (now - value.startTime > RATE_LIMIT_WINDOW_MS) {
+          ipRateLimitMap.delete(key);
+        }
+      }
+    }
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+  entry.count++;
+  return true;
+}
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -57,7 +83,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 0. Guarda de Tamanho Máximo do Payload (Proteção DoS)
+    // 0. Rate Limiting por IP para Prevenção Anti-Fraude
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.headers["x-real-ip"] || req.socket?.remoteAddress || "anonymous_ip";
+    if (!checkRateLimit(clientIp)) {
+      return res.status(429).json({
+        success: false,
+        error: "Limite temporário de submissões por rede atingido para resguardar a integridade bioestatística da amostra. Tente novamente em alguns minutos."
+      });
+    }
+
+    // 0.1. Guarda de Tamanho Máximo do Payload (Proteção DoS)
     if (req.headers && req.headers["content-length"] && parseInt(req.headers["content-length"], 10) > 8192) {
       return res.status(413).json({
         success: false,
@@ -89,13 +124,37 @@ export default async function handler(req, res) {
       });
     }
 
-    // 0.1. Rejeição de Chaves Não Autorizadas (Prevenção de poluição de parâmetros)
-    const ALLOWED_BODY_KEYS = ["submission_token", "answers", "q1_ano_escolar"];
+    // 0.2. Rejeição de Chaves Não Autorizadas (Prevenção de poluição de parâmetros)
+    const ALLOWED_BODY_KEYS = [
+      "submission_token", 
+      "answers", 
+      "q1_ano_escolar", 
+      "client_elapsed_ms", 
+      "idomed_hp_verification"
+    ];
     for (const key of Object.keys(body)) {
       if (!ALLOWED_BODY_KEYS.includes(key)) {
         return res.status(400).json({
           success: false,
           error: `Parâmetro não reconhecido na requisição: ${key}.`
+        });
+      }
+    }
+
+    // 0.3. Verificação de Honeypot Anti-Bot
+    if (body.idomed_hp_verification && typeof body.idomed_hp_verification === "string" && body.idomed_hp_verification.trim() !== "") {
+      return res.status(400).json({
+        success: false,
+        error: "Tentativa de submissão automatizada interceptada pelo sistema bioético."
+      });
+    }
+
+    // 0.4. Verificação de Cadência Humana (Human Speed Guard)
+    if (body.client_elapsed_ms !== undefined && body.client_elapsed_ms !== null) {
+      if (typeof body.client_elapsed_ms !== "number" || body.client_elapsed_ms < 2000) {
+        return res.status(400).json({
+          success: false,
+          error: "Submissão rejeitada: tempo de preenchimento incompatível com leitura humana de 10 perguntas."
         });
       }
     }
@@ -188,10 +247,19 @@ export default async function handler(req, res) {
     }
 
     const result = await supabaseRes.json();
+    const receiptCode = `MED-${submission_token.slice(0, 8).toUpperCase()}`;
+
+    // Persistência de Cookie de Conclusão no Header HTTP para Prevenção Anti-Fraude
+    res.setHeader("Set-Cookie", [
+      "idomed_quiz_completed=true; Path=/; Max-Age=31536000; SameSite=Lax",
+      `idomed_receipt_token=${receiptCode}; Path=/; Max-Age=31536000; SameSite=Lax`
+    ]);
+
     return res.status(200).json({
       success: true,
       idempotent: result.idempotent || false,
-      message: result.message || "Resposta registrada com sucesso."
+      message: result.message || "Resposta registrada com sucesso.",
+      receipt_code: receiptCode
     });
 
   } catch (err) {

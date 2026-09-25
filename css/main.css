@@ -329,6 +329,50 @@ button {
   }
 }
 
+/* Auras de Relance Ambiental Institucional (Efeito Luminoso Suave) */
+.ambient-aurora-top {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  max-width: 900px;
+  height: 90px;
+  background: radial-gradient(ellipse 65% 100% at 50% 0%, rgba(0, 168, 150, 0.18) 0%, rgba(2, 195, 154, 0.08) 50%, transparent 100%);
+  filter: blur(14px);
+  pointer-events: none;
+  z-index: 9998;
+  animation: auroraBreathe 6s ease-in-out infinite alternate;
+}
+
+.ambient-aurora-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  max-width: 900px;
+  height: 90px;
+  background: radial-gradient(ellipse 65% 100% at 50% 100%, rgba(56, 189, 248, 0.16) 0%, rgba(0, 59, 113, 0.08) 50%, transparent 100%);
+  filter: blur(14px);
+  pointer-events: none;
+  z-index: 9998;
+  animation: auroraBreathe 6s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes auroraBreathe {
+  0% { opacity: 0.55; transform: translateX(-50%) scaleY(0.85); }
+  100% { opacity: 0.95; transform: translateX(-50%) scaleY(1.15); }
+}
+
+[data-theme="dark"] .ambient-aurora-top {
+  background: radial-gradient(ellipse 65% 100% at 50% 0%, rgba(20, 184, 166, 0.28) 0%, rgba(52, 211, 153, 0.14) 50%, transparent 100%);
+}
+
+[data-theme="dark"] .ambient-aurora-bottom {
+  background: radial-gradient(ellipse 65% 100% at 50% 100%, rgba(56, 189, 248, 0.25) 0%, rgba(14, 165, 233, 0.1) 50%, transparent 100%);
+}
+
 /* ==========================================================================
    BOTÃO DE ALTERNÂNCIA DE TEMA (CLARO / ESCURO)
    ========================================================================== */

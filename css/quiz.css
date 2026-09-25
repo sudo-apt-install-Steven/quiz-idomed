@@ -1235,29 +1235,121 @@
   100% { stroke-dashoffset: 0; }
 }
 
-.medical-loading-bar-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-full);
+/* Barra de Telemetria Médica para Conexões Lentas / Envio Bioestatístico */
+.medical-telemetry-wrap {
   margin-top: 14px;
+}
+
+.telemetry-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 7px;
+  letter-spacing: 0.3px;
+}
+
+.telemetry-phase {
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.telemetry-pct {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.medical-vital-track {
+  width: 100%;
+  height: 9px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(0, 168, 150, 0.35);
+  border-radius: var(--radius-full);
   overflow: hidden;
   position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
-.medical-loading-bar-fill {
+.medical-vital-fill {
   height: 100%;
-  width: 50%;
-  background: linear-gradient(90deg, #003b71, #00a896, #02c39a, #38bdf8);
+  background: linear-gradient(90deg, #003b71 0%, #00a896 45%, #02c39a 80%, #38bdf8 100%);
   border-radius: var(--radius-full);
   position: relative;
-  animation: medicalBarShift 1.8s ease-in-out infinite;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px rgba(2, 195, 154, 0.6);
 }
 
-@keyframes medicalBarShift {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(100%); }
-  100% { transform: translateX(250%); }
+.vital-needle-head {
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  bottom: -2px;
+  width: 8px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ffffff, 0 0 14px #38bdf8;
+  animation: needleGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes needleGlow {
+  from { transform: scale(0.9); opacity: 0.8; }
+  to { transform: scale(1.3); opacity: 1; }
+}
+
+/* Indicador de Resiliência de Rede Clínica */
+.clinical-network-banner {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  animation: fadeInSlowNotice 0.3s ease-out;
+}
+
+.clinical-network-banner.active {
+  display: flex;
+}
+
+.network-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: beaconPulse 1.5s infinite;
+}
+
+/* Sugestão Acadêmica para Não-Usuários */
+.non-user-hint-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #028074;
+  background: #e6f7f5;
+  border: 1px solid rgba(0, 168, 150, 0.3);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  margin-top: 6px;
+}
+
+[data-theme="dark"] .non-user-hint-badge {
+  color: #2dd4bf;
+  background: rgba(20, 184, 166, 0.15);
+  border-color: rgba(20, 184, 166, 0.3);
 }
 
 .slow-connection-warning {

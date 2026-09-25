@@ -57,8 +57,8 @@
   const elQrInput = document.getElementById("qrTargetUrl");
   const elQrCanvas = document.getElementById("qrCanvasPreview");
 
-  // Paleta de Cores Acadêmica para os Gráficos
-  const COLOR_PALETTE = [
+  // Paleta de Cores Acadêmica para os Gráficos (Claro & Escuro)
+  const LIGHT_PALETTE = [
     '#003b71', // Azul Marinho IDOMED
     '#00a896', // Verde Cirúrgico Teal
     '#02c39a', // Acento Esmeralda
@@ -67,6 +67,21 @@
     '#8b5cf6', // Violeta
     '#64748b'  // Cinza Ardósia
   ];
+
+  const DARK_PALETTE = [
+    '#38bdf8', // Azul Celeste IDOMED (Alto contraste)
+    '#14b8a6', // Verde Cirúrgico Teal Límpido
+    '#34d399', // Acento Esmeralda
+    '#fbbf24', // Âmbar Fluorescente
+    '#fb7185', // Rosa Coral Límpido
+    '#a78bfa', // Violeta Suave
+    '#94a3b8'  // Cinza Ardósia Claro
+  ];
+
+  function getPalette() {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    return isDark ? DARK_PALETTE : LIGHT_PALETTE;
+  }
 
   /**
    * Sanitização estrita contra XSS para inserções no DOM
@@ -102,8 +117,13 @@
    * Atualiza configurações visuais do Chart.js conforme o tema ativo
    */
   function updateChartTheme(theme) {
-    if (typeof Chart === "undefined") return;
     const isDark = (theme === "dark");
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", isDark ? "#0a1120" : "#003b71");
+    }
+
+    if (typeof Chart === "undefined") return;
     Chart.defaults.color = isDark ? '#94a3b8' : '#64748b';
     Chart.defaults.borderColor = isDark ? 'rgba(30, 51, 90, 0.6)' : '#e2e8f0';
     if (filteredData && filteredData.length > 0) {
@@ -452,7 +472,10 @@
         atrativoCounts[r.q5_atrativo_principal] = (atrativoCounts[r.q5_atrativo_principal] || 0) + 1;
       }
     });
-    const topAtrativo = Object.keys(atrativoCounts).sort((a,b) => atrativoCounts[b] - atrativoCounts[a])[0] || "Sabores e cheiros doces/frutados";
+    const atrativoKeys = Object.keys(atrativoCounts);
+    const topAtrativo = atrativoKeys.length > 0
+      ? atrativoKeys.sort((a,b) => atrativoCounts[b] - atrativoCounts[a])[0]
+      : "Nenhum atrativo apontado (sem uso ativo)";
 
     // Fonte de aquisição (filtrando 'Não se aplica / Nunca usei')
     const acessoCounts = {};
@@ -461,7 +484,10 @@
         acessoCounts[r.q7_forma_acesso] = (acessoCounts[r.q7_forma_acesso] || 0) + 1;
       }
     });
-    const topAcesso = Object.keys(acessoCounts).sort((a,b) => acessoCounts[b] - acessoCounts[a])[0] || "Lojas físicas / Tabacarias";
+    const acessoKeys = Object.keys(acessoCounts);
+    const topAcesso = acessoKeys.length > 0
+      ? acessoKeys.sort((a,b) => acessoCounts[b] - acessoCounts[a])[0]
+      : "Sem aquisição relatada (amostra sem uso)";
 
     // Diálogo
     const noDialogue = filteredData.filter(r => r.q10_dialogo_prevencao === "Nunca conversei sobre isso").length;
@@ -559,13 +585,14 @@
     const ageGroups = ["14 a 15 anos", "16 a 17 anos", "18 anos"];
     const usageTypes = ["Nunca experimentei", "Já experimentei, mas não uso", "Uso ocasionalmente", "Uso frequentemente"];
 
+    const currentPalette = getPalette();
     const datasets = usageTypes.map((usage, idx) => {
       return {
         label: usage,
         data: ageGroups.map(age => {
           return filteredData.filter(r => r.q1_faixa_etaria === age && r.q2_contato_vape === usage).length;
         }),
-        backgroundColor: COLOR_PALETTE[idx % COLOR_PALETTE.length]
+        backgroundColor: currentPalette[idx % currentPalette.length]
       };
     });
 
@@ -601,6 +628,7 @@
     const nonUsers = filteredData.filter(r => r.q2_contato_vape === "Nunca experimentei");
     const activeUsers = filteredData.filter(r => r.q2_contato_vape === "Uso ocasionalmente" || r.q2_contato_vape === "Uso frequentemente");
 
+    const currentPalette = getPalette();
     const datasets = riskOptions.map((risk, idx) => {
       const nonUserCount = nonUsers.filter(r => r.q9_percepcao_risco === risk).length;
       const activeUserCount = activeUsers.filter(r => r.q9_percepcao_risco === risk).length;
@@ -611,7 +639,7 @@
       return {
         label: risk,
         data: [nonUserPct, activeUserPct],
-        backgroundColor: COLOR_PALETTE[(idx + 2) % COLOR_PALETTE.length]
+        backgroundColor: currentPalette[(idx + 2) % currentPalette.length]
       };
     });
 
@@ -698,6 +726,7 @@
       return Math.round((neverCount / cohort.length) * 100);
     });
 
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     chartInstances["chartDialogueVsUsage"] = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -705,7 +734,7 @@
         datasets: [{
           label: '% de Jovens que Nunca Experimentaram',
           data: neverRates,
-          backgroundColor: '#003b71',
+          backgroundColor: isDark ? '#38bdf8' : '#003b71',
           borderRadius: 6
         }]
       },
@@ -891,7 +920,7 @@
         labels: labels,
         datasets: [{
           data: dataValues,
-          backgroundColor: COLOR_PALETTE.slice(0, labels.length),
+          backgroundColor: getPalette().slice(0, labels.length),
           borderRadius: isDonut ? 0 : 6
         }]
       },

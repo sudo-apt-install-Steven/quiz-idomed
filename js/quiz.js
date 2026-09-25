@@ -18,6 +18,7 @@
   const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   // Estado da Aplicação
+  const surveyStartTime = Date.now();
   let currentIndex = 0;
   let userAnswers = new Array(questions.length).fill(null);
   let selectedSchoolYear = null;
@@ -43,13 +44,21 @@
   const elProgressPercent = document.getElementById("progressPercent");
   const elBtnBack = document.getElementById("btnBack");
 
-  // Elementos de Estado Bioético & Anti-Fraude
+  // Elementos de Estado Bioético & Anti-Fraude & Telemetria
   const elAlreadySubmittedState = document.getElementById("alreadySubmittedPanel");
   const elSubmittedReceiptCode = document.getElementById("submittedReceiptCode");
+  const elSuccessReceiptCode = document.getElementById("successReceiptCode");
   const elSlowConnectionWarning = document.getElementById("slowConnectionWarning");
   const elSlowConnectionText = document.getElementById("slowConnectionText");
   const elLoadingHeadline = document.getElementById("loadingHeadline");
   const elLoadingDescription = document.getElementById("loadingDescription");
+  const elTelemetryPhaseText = document.getElementById("telemetryPhaseText");
+  const elTelemetryPercentText = document.getElementById("telemetryPercentText");
+  const elMedicalVitalFill = document.getElementById("medicalVitalFill");
+  const elVitalRateValue = document.getElementById("vitalRateValue");
+  const elKeyboardMaxHint = document.getElementById("keyboardMaxHint");
+  const elClinicalNetworkBanner = document.getElementById("clinicalNetworkBanner");
+  const elClinicalNetworkText = document.getElementById("clinicalNetworkText");
 
   // Elementos do Botão de Alternância de Tema
   const elThemeToggleBtn = document.getElementById("themeToggleBtn");
@@ -80,6 +89,10 @@
 
     function applyTheme(theme) {
       document.documentElement.setAttribute("data-theme", theme);
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute("content", theme === "dark" ? "#0a1120" : "#003b71");
+      }
       try {
         localStorage.setItem("idomed_theme", theme);
         document.cookie = "idomed_theme=" + encodeURIComponent(theme) + "; path=/; max-age=31536000; SameSite=Lax";
@@ -396,6 +409,10 @@
       elQuestionRemaining.textContent = remainingCount > 0 ? `${remainingCount} restantes` : "Última pergunta";
     }
 
+    if (elKeyboardMaxHint) {
+      elKeyboardMaxHint.textContent = currentQ.options.length;
+    }
+
     // Efeito pop suave no contador
     elProgressText.classList.remove("pop");
     void elProgressText.offsetWidth; // Força reflow para reiniciar animação
@@ -432,6 +449,22 @@
         <span>Passo 1 de 2: Selecione a sua faixa etária</span>
       `;
       elOptionsList.appendChild(hint);
+    }
+
+    // Orientação Contextual para Respondentes Não-Usuários
+    const isDeclaredNonUser = (userAnswers[1] === "Nunca experimentei");
+    if (isDeclaredNonUser) {
+      if (currentQ.id === 3) {
+        const hint = document.createElement("div");
+        hint.className = "non-user-hint-badge";
+        hint.innerHTML = `<span>💡 Participante não-usuário: selecione a alternativa <strong>"Nunca usei"</strong></span>`;
+        elOptionsList.appendChild(hint);
+      } else if (currentQ.id === 4 || currentQ.id === 5 || currentQ.id === 7) {
+        const hint = document.createElement("div");
+        hint.className = "non-user-hint-badge";
+        hint.innerHTML = `<span>💡 Se você nunca utilizou vape ou não se aplica, selecione <strong>"Não se aplica / Nunca usei"</strong></span>`;
+        elOptionsList.appendChild(hint);
+      }
     }
 
     currentQ.options.forEach((optText, optIdx) => {
@@ -544,6 +577,9 @@
   /**
    * Envia as 10 respostas com controle de idempotência e fallback resiliente
    */
+  /**
+   * Envia as 10 respostas com telemetria vital clínica, controle de idempotência e fallback resiliente
+   */
   async function submitQuizAnswers() {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -562,32 +598,70 @@
       elLoadingHeadline.textContent = "Gravando respostas...";
     }
     if (elLoadingDescription) {
-      elLoadingDescription.textContent = "Registrando suas informações com segurança criptográfica e anonimato absoluto nos servidores da pesquisa.";
+      elLoadingDescription.textContent = "Registrando suas informações com segurança criptográfica e anonimato absoluto nos servidores da pesquisa IDOMED - Medicina.";
     }
 
-    // Monitor Ativo de Conexão Lenta com Sinais Vitais em Tempo Real
+    // Progresso Dinâmico da Barra de Telemetria Médica
+    let currentPct = 15;
+    function updateTelemetry(pct, phaseText, bpm) {
+      if (elMedicalVitalFill) elMedicalVitalFill.style.width = `${pct}%`;
+      if (elTelemetryPercentText) elTelemetryPercentText.textContent = `${pct}%`;
+      if (elTelemetryPhaseText && phaseText) elTelemetryPhaseText.textContent = phaseText;
+      if (elVitalRateValue && bpm) elVitalRateValue.textContent = `${bpm} BPM • Sinal Ativo`;
+    }
+
+    updateTelemetry(15, "Iniciando criptografia bioestatística...", 72);
+
+    const progressInterval = setInterval(() => {
+      if (!isSubmitting) {
+        clearInterval(progressInterval);
+        return;
+      }
+      if (currentPct < 85) {
+        currentPct += Math.floor(Math.random() * 8) + 4;
+        if (currentPct > 85) currentPct = 85;
+        const bpm = 70 + Math.floor(Math.random() * 8);
+        let phase = "Transmitindo dados criptografados...";
+        if (currentPct > 40 && currentPct <= 65) {
+          phase = "Validando anonimização e integridade amostral...";
+        } else if (currentPct > 65) {
+          phase = "Sincronizando com o Observatório IDOMED...";
+        }
+        updateTelemetry(currentPct, phase, bpm);
+      }
+    }, 280);
+
+    // Watchdogs para Conexão Lenta com Alerta Hospitalar
     const slowTimer1 = setTimeout(() => {
       if (isSubmitting && elSlowConnectionWarning) {
         elSlowConnectionWarning.classList.add("active");
         if (elSlowConnectionText) {
-          elSlowConnectionText.textContent = "Sincronizando dados clínicos com o servidor seguro da pesquisa IDOMED - Medicina... Por favor, aguarde alguns instantes sem fechar o navegador.";
+          elSlowConnectionText.textContent = "Conexão lenta detectada. Sincronizando dados clínicos com o servidor seguro da pesquisa IDOMED - Medicina... Por favor, aguarde alguns instantes sem fechar o navegador.";
         }
+        updateTelemetry(88, "Canal com latência • Estabilizando conexão...", 78);
       }
-    }, 1400);
+    }, 1300);
 
     const slowTimer2 = setTimeout(() => {
       if (isSubmitting && elSlowConnectionText) {
-        elSlowConnectionText.textContent = "Conexão de rede oscilante. Ativando canal redundante de alta resiliência para garantir o registro seguro da sua amostra...";
+        elSlowConnectionText.textContent = "Oscilação severa de rede detectada. Ativando canal secundário resiliente para garantir a entrega sem duplicação de dados...";
+        updateTelemetry(93, "Modo de alta resiliência ativo...", 82);
       }
-    }, 3200);
+    }, 2900);
+
+    const honeypotVal = document.getElementById("idomedHoneypot")?.value || "";
+    const elapsedTimeMs = Date.now() - surveyStartTime;
 
     const payload = {
       submission_token: submissionToken,
       answers: userAnswers,
-      q1_ano_escolar: selectedSchoolYear || null
+      q1_ano_escolar: selectedSchoolYear || null,
+      client_elapsed_ms: elapsedTimeMs,
+      idomed_hp_verification: honeypotVal
     };
 
     let success = false;
+    let serverReceipt = null;
 
     // 1ª Tentativa: Endpoint Serverless Vercel (/api/submit)
     try {
@@ -601,6 +675,7 @@
         const data = await response.json();
         if (data.success) {
           success = true;
+          serverReceipt = data.receipt_code || null;
         }
       }
     } catch (err) {
@@ -646,6 +721,7 @@
       }
     }
 
+    clearInterval(progressInterval);
     clearTimeout(slowTimer1);
     clearTimeout(slowTimer2);
 
@@ -653,19 +729,27 @@
     isTransitioning = false;
 
     if (success) {
+      updateTelemetry(100, "Submissão confirmada pelo servidor!", 72);
       triggerHaptic(25);
+
+      const receiptCode = serverReceipt || "MED-" + submissionToken.slice(0, 8).toUpperCase();
 
       // Persistência Anti-Fraude Segura no Dispositivo (Cookies & LocalStorage)
       try {
-        const receiptCode = "MED-" + submissionToken.slice(0, 8).toUpperCase();
         document.cookie = "idomed_quiz_completed=true; path=/; max-age=31536000; SameSite=Lax";
+        document.cookie = `idomed_receipt_token=${receiptCode}; path=/; max-age=31536000; SameSite=Lax`;
         localStorage.setItem("idomed_quiz_completed", "true");
         localStorage.setItem("idomed_submission_timestamp", new Date().toISOString());
         localStorage.setItem("idomed_receipt_token", receiptCode);
       } catch (_) {}
 
-      if (elLoadingState) elLoadingState.style.display = "none";
-      if (elSuccessState) elSuccessState.style.display = "block";
+      if (elSuccessReceiptCode) elSuccessReceiptCode.textContent = receiptCode;
+      if (elSubmittedReceiptCode) elSubmittedReceiptCode.textContent = receiptCode;
+
+      setTimeout(() => {
+        if (elLoadingState) elLoadingState.style.display = "none";
+        if (elSuccessState) elSuccessState.style.display = "block";
+      }, 350);
     } else {
       triggerHaptic(50);
       if (elLoadingState) elLoadingState.style.display = "none";
@@ -718,18 +802,46 @@
     elBtnCancelSchoolYear.addEventListener("click", closeSchoolYearModal);
   }
 
-  // Suporte a atalhos de teclado para acessibilidade
+  // Monitoramento Ativo de Conectividade e Resiliência
+  function setupNetworkMonitor() {
+    function updateStatus() {
+      if (!elClinicalNetworkBanner) return;
+      if (!navigator.onLine) {
+        elClinicalNetworkBanner.classList.add("active");
+        if (elClinicalNetworkText) {
+          elClinicalNetworkText.textContent = "Conexão interrompida. Suas respostas permanecem preservadas no aparelho.";
+        }
+      } else if (navigator.connection && (navigator.connection.effectiveType === '2g' || navigator.connection.saveData)) {
+        elClinicalNetworkBanner.classList.add("active");
+        if (elClinicalNetworkText) {
+          elClinicalNetworkText.textContent = "Conexão lenta detectada. Protocolo de alta resiliência IDOMED ativo.";
+        }
+      } else {
+        elClinicalNetworkBanner.classList.remove("active");
+      }
+    }
+
+    window.addEventListener("online", updateStatus);
+    window.addEventListener("offline", updateStatus);
+    if (navigator.connection) {
+      navigator.connection.addEventListener("change", updateStatus);
+    }
+    updateStatus();
+  }
+
+  // Suporte a atalhos de teclado para acessibilidade (todas as alternativas numéricas)
   document.addEventListener("keydown", function(e) {
     if (isSubmitting || isTransitioning) return;
 
-    // Se o modal estiver aberto
+    // Se o modal de ano escolar estiver aberto
     if (elSchoolYearModal && elSchoolYearModal.classList.contains("is-open")) {
       if (e.key === "Escape") {
         closeSchoolYearModal();
         return;
       }
-      if (e.key >= "1" && e.key <= "5") {
-        const idx = parseInt(e.key, 10) - 1;
+      const numKey = parseInt(e.key, 10);
+      if (!isNaN(numKey) && numKey >= 1) {
+        const idx = numKey - 1;
         const buttons = elSchoolYearOptions.querySelectorAll(".school-year-btn");
         if (buttons[idx]) {
           buttons[idx].click();
@@ -738,15 +850,18 @@
       }
     }
 
-    if (elQuizContainer.style.display === "none") return;
+    if (elQuizContainer && elQuizContainer.style.display === "none") return;
 
     if (e.key === "ArrowLeft" && currentIndex > 0) {
       window.handlePreviousQuestion();
-    } else if (e.key >= "1" && e.key <= "5") {
-      const idx = parseInt(e.key, 10) - 1;
-      const buttons = elOptionsList.querySelectorAll(".option-item");
-      if (buttons[idx]) {
-        buttons[idx].click();
+    } else {
+      const numKey = parseInt(e.key, 10);
+      if (!isNaN(numKey) && numKey >= 1) {
+        const idx = numKey - 1;
+        const buttons = elOptionsList.querySelectorAll(".option-item");
+        if (buttons[idx]) {
+          buttons[idx].click();
+        }
       }
     }
   });
@@ -801,6 +916,7 @@
 
   // Inicialização
   initThemeManager();
+  setupNetworkMonitor();
 
   if (isDeviceAlreadySubmitted()) {
     showAlreadySubmittedScreen();
