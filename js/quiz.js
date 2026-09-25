@@ -72,6 +72,12 @@
   const elSelectedAgeBadge = document.getElementById("selectedAgeBadge");
   const elBtnCancelSchoolYear = document.getElementById("btnCancelSchoolYear");
 
+  // Elementos do Modal de Confirmação Final de Envio (Questão 10 Concluída)
+  const elSubmissionConfirmModal = document.getElementById("submissionConfirmModal");
+  const elSubmissionConfirmBackdrop = document.getElementById("submissionConfirmBackdrop");
+  const elBtnConfirmSubmitFinal = document.getElementById("btnConfirmSubmitFinal");
+  const elBtnReviewAnswers = document.getElementById("btnReviewAnswers");
+
   /**
    * Gerenciamento de Tema (Claro / Escuro) com persistência em Cookie e LocalStorage
    */
@@ -79,12 +85,11 @@
     function getSavedTheme() {
       try {
         const cookieMatch = document.cookie.match(/(?:^|;\s*)idomed_theme=([^;]+)/);
-        if (cookieMatch) return decodeURIComponent(cookieMatch[1]);
+        if (cookieMatch) return (decodeURIComponent(cookieMatch[1]) === "dark") ? "dark" : "light";
         const storageTheme = localStorage.getItem("idomed_theme");
-        if (storageTheme) return storageTheme;
+        if (storageTheme) return (storageTheme === "dark") ? "dark" : "light";
       } catch (_) {}
-      const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      return systemDark ? "dark" : "light";
+      return "light";
     }
 
     function applyTheme(theme) {
@@ -142,6 +147,15 @@
   }
 
   /**
+   * Formata comprovante anônimo criptográfico com 12 dígitos hexadecimais (281 trilhões de combinações)
+   */
+  function formatReceiptCode(tokenUuid) {
+    if (!tokenUuid) return "MED-PROTOCOL-VERIFIED";
+    const clean = tokenUuid.replace(/[^a-fA-F0-9]/g, "").toUpperCase();
+    return `MED-${clean.slice(0, 4)}-${clean.slice(4, 8)}-${clean.slice(8, 12)}`;
+  }
+
+  /**
    * Exibe a tela de participação já registrada
    */
   function showAlreadySubmittedScreen() {
@@ -151,7 +165,7 @@
     if (elErrorState) elErrorState.style.display = "none";
     if (elAlreadySubmittedState) {
       elAlreadySubmittedState.style.display = "block";
-      const token = localStorage.getItem("idomed_receipt_token") || "MED-" + submissionToken.slice(0, 8).toUpperCase();
+      const token = localStorage.getItem("idomed_receipt_token") || formatReceiptCode(submissionToken);
       if (elSubmittedReceiptCode) {
         elSubmittedReceiptCode.textContent = token;
       }
@@ -199,6 +213,32 @@
       const v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+
+  /**
+   * Abre o Modal / Bottom-Sheet de Confirmação Final de Envio (Questão 10 Concluída)
+   */
+  function openSubmissionConfirmModal() {
+    triggerHaptic(20);
+    if (!elSubmissionConfirmModal) {
+      submitQuizAnswers();
+      return;
+    }
+    elSubmissionConfirmModal.classList.add("is-open");
+    elSubmissionConfirmModal.setAttribute("aria-hidden", "false");
+    if (elBtnConfirmSubmitFinal) {
+      elBtnConfirmSubmitFinal.focus();
+    }
+  }
+
+  /**
+   * Fecha o Modal de Confirmação Final de Envio para revisão das respostas
+   */
+  function closeSubmissionConfirmModal() {
+    isTransitioning = false;
+    if (!elSubmissionConfirmModal) return;
+    elSubmissionConfirmModal.classList.remove("is-open");
+    elSubmissionConfirmModal.setAttribute("aria-hidden", "true");
   }
 
   /**
@@ -357,7 +397,8 @@
           currentIndex++;
           renderQuestion("forward");
         } else {
-          submitQuizAnswers();
+          isTransitioning = false;
+          openSubmissionConfirmModal();
         }
       }, 160);
     }, 220);
@@ -557,7 +598,8 @@
         currentIndex++;
         renderQuestion("forward");
       } else {
-        submitQuizAnswers();
+        isTransitioning = false;
+        openSubmissionConfirmModal();
       }
     }, 240);
   }
@@ -732,7 +774,7 @@
       updateTelemetry(100, "Submissão confirmada pelo servidor!", 72);
       triggerHaptic(25);
 
-      const receiptCode = serverReceipt || "MED-" + submissionToken.slice(0, 8).toUpperCase();
+      const receiptCode = serverReceipt || formatReceiptCode(submissionToken);
 
       // Persistência Anti-Fraude Segura no Dispositivo (Cookies & LocalStorage)
       try {
@@ -785,6 +827,11 @@
       elSchoolYearModal.setAttribute("aria-hidden", "true");
     }
 
+    if (elSubmissionConfirmModal) {
+      elSubmissionConfirmModal.classList.remove("is-open");
+      elSubmissionConfirmModal.setAttribute("aria-hidden", "true");
+    }
+
     if (elSuccessState) elSuccessState.style.display = "none";
     if (elErrorState) elErrorState.style.display = "none";
     if (elLoadingState) elLoadingState.style.display = "none";
@@ -800,6 +847,23 @@
   }
   if (elBtnCancelSchoolYear) {
     elBtnCancelSchoolYear.addEventListener("click", closeSchoolYearModal);
+  }
+
+  // Listeners do Modal de Confirmação Final de Envio
+  if (elSubmissionConfirmBackdrop) {
+    elSubmissionConfirmBackdrop.addEventListener("click", closeSubmissionConfirmModal);
+  }
+  if (elBtnReviewAnswers) {
+    elBtnReviewAnswers.addEventListener("click", () => {
+      triggerHaptic(10);
+      closeSubmissionConfirmModal();
+    });
+  }
+  if (elBtnConfirmSubmitFinal) {
+    elBtnConfirmSubmitFinal.addEventListener("click", () => {
+      closeSubmissionConfirmModal();
+      submitQuizAnswers();
+    });
   }
 
   // Monitoramento Ativo de Conectividade e Resiliência
@@ -832,6 +896,20 @@
   // Suporte a atalhos de teclado para acessibilidade (todas as alternativas numéricas)
   document.addEventListener("keydown", function(e) {
     if (isSubmitting || isTransitioning) return;
+
+    // Se o modal de confirmação de envio estiver aberto
+    if (elSubmissionConfirmModal && elSubmissionConfirmModal.classList.contains("is-open")) {
+      if (e.key === "Escape") {
+        closeSubmissionConfirmModal();
+        return;
+      }
+      if (e.key === "Enter") {
+        closeSubmissionConfirmModal();
+        submitQuizAnswers();
+        return;
+      }
+      return;
+    }
 
     // Se o modal de ano escolar estiver aberto
     if (elSchoolYearModal && elSchoolYearModal.classList.contains("is-open")) {
@@ -867,8 +945,9 @@
   });
 
   // Suporte a gesto tátil de arrastar para baixo (Swipe to Dismiss) no Mobile
-  const sheetEl = document.querySelector(".school-year-sheet");
-  if (sheetEl) {
+  function setupSwipeDismiss(sheetSelector, closeFn) {
+    const sheetEl = document.querySelector(sheetSelector);
+    if (!sheetEl) return;
     let touchStartY = 0;
     let currentDeltaY = 0;
     let canDrag = false;
@@ -876,9 +955,9 @@
     sheetEl.addEventListener("touchstart", function(e) {
       if (e.touches && e.touches.length === 1) {
         const target = e.target;
-        const isHeaderOrHandle = target.closest(".sheet-drag-handle") || target.closest(".school-year-header");
-        const optionsEl = document.getElementById("schoolYearOptions");
-        const isAtTop = !optionsEl || optionsEl.scrollTop <= 0;
+        const isHeaderOrHandle = target.closest(".sheet-drag-handle") || target.closest(".school-year-header") || target.closest(".confirm-header");
+        const scrollableEl = sheetEl.querySelector(".school-year-options") || sheetEl;
+        const isAtTop = !scrollableEl || scrollableEl.scrollTop <= 0;
 
         if (isHeaderOrHandle || isAtTop) {
           touchStartY = e.touches[0].clientY;
@@ -903,7 +982,7 @@
     const finishTouch = function() {
       sheetEl.style.transform = "";
       if (canDrag && currentDeltaY > 70) {
-        closeSchoolYearModal();
+        closeFn();
       }
       touchStartY = 0;
       currentDeltaY = 0;
@@ -913,6 +992,9 @@
     sheetEl.addEventListener("touchend", finishTouch, { passive: true });
     sheetEl.addEventListener("touchcancel", finishTouch, { passive: true });
   }
+
+  setupSwipeDismiss(".school-year-sheet", closeSchoolYearModal);
+  setupSwipeDismiss(".submission-confirm-sheet", closeSubmissionConfirmModal);
 
   // Inicialização
   initThemeManager();

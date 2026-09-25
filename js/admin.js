@@ -139,12 +139,11 @@
     function getSavedTheme() {
       try {
         const cookieMatch = document.cookie.match(/(?:^|;\s*)idomed_theme=([^;]+)/);
-        if (cookieMatch) return decodeURIComponent(cookieMatch[1]);
+        if (cookieMatch) return (decodeURIComponent(cookieMatch[1]) === "dark") ? "dark" : "light";
         const storageTheme = localStorage.getItem("idomed_theme");
-        if (storageTheme) return storageTheme;
+        if (storageTheme) return (storageTheme === "dark") ? "dark" : "light";
       } catch (_) {}
-      const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      return systemDark ? "dark" : "light";
+      return "light";
     }
 
     function applyTheme(theme) {

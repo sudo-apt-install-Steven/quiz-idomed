@@ -268,7 +268,7 @@
   text-align: left;
   font-size: 0.975rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--color-text-main);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -358,7 +358,7 @@
 .option-label {
   line-height: 1.35;
   word-break: break-word;
-  color: #1e293b;
+  color: inherit;
 }
 
 /* Sub-Badge para Etapa 2 de Ano Escolar */
@@ -1487,44 +1487,305 @@
 }
 
 /* ==========================================================================
-   TEMA ESCURO - QUIZ OVERRIDES
+   Modal de Confirmação Final de Envio (Questão 10 Concluída)
+   ========================================================================== */
+.submission-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+
+.submission-confirm-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.submission-confirm-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.submission-confirm-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  padding: 18px 24px 28px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.submission-confirm-modal.is-open .submission-confirm-sheet {
+  transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .submission-confirm-modal {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .submission-confirm-sheet {
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+    transform: scale(0.94) translateY(20px);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+    opacity: 0;
+  }
+
+  .submission-confirm-modal.is-open .submission-confirm-sheet {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.confirm-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.confirm-crest-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+  color: #059669;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.15);
+}
+
+.confirm-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #003b71;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.confirm-desc {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.confirm-summary-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirm-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.confirm-check-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0284c7;
+  font-weight: 800;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.confirm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-confirm-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #00a896 0%, #028074 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 168, 150, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  touch-action: manipulation;
+}
+
+.btn-confirm-submit:hover {
+  background: linear-gradient(135deg, #00bfa9 0%, #029486 100%);
+  box-shadow: 0 6px 22px rgba(0, 168, 150, 0.45);
+  transform: translateY(-1.5px);
+}
+
+.btn-confirm-submit:active {
+  transform: scale(0.985);
+}
+
+.btn-review-answers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-review-answers:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.btn-review-answers:active {
+  background: #e2e8f0;
+}
+
+/* ==========================================================================
+   TEMA ESCURO - HIGH CONTRAST & LUXURY MEDICAL OVERRIDES
    ========================================================================== */
 [data-theme="dark"] .quiz-header {
   background: linear-gradient(135deg, #0f1c36 0%, #070e1d 100%);
   border-bottom: 3px solid #14b8a6;
 }
 
+[data-theme="dark"] .header-crest {
+  background: rgba(20, 184, 166, 0.18);
+  border-color: rgba(20, 184, 166, 0.35);
+}
+
 [data-theme="dark"] .quiz-card {
-  background-color: var(--color-surface);
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-card);
+  background-color: #0f182c;
+  border-color: #1e335a;
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.08);
 }
 
+[data-theme="dark"] .question-text {
+  color: #f8fafc !important;
+}
+
+/* Alternativas no Tema Escuro - Alto Contraste & Nitidez (WCAG AAA) */
 [data-theme="dark"] .option-item {
-  background-color: rgba(22, 36, 66, 0.6);
-  border-color: var(--color-border);
-  color: var(--color-text-main);
+  background-color: #162442;
+  border: 1.5px solid #233b67;
+  color: #f8fafc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
-[data-theme="dark"] .option-item:hover {
-  background-color: rgba(22, 36, 66, 0.95);
-  border-color: var(--color-secondary);
-}
-
-[data-theme="dark"] .option-item.selected {
-  background-color: rgba(20, 184, 166, 0.16);
-  border-color: var(--color-secondary);
-  box-shadow: 0 0 16px rgba(20, 184, 166, 0.25);
-}
-
-[data-theme="dark"] .option-item.selected .option-label {
-  color: #2dd4bf;
+[data-theme="dark"] .option-item .option-label {
+  color: #f8fafc !important;
+  font-weight: 500;
 }
 
 [data-theme="dark"] .option-letter-badge {
-  background-color: rgba(30, 51, 90, 0.8);
-  color: #7dd3fc;
-  border-color: rgba(56, 189, 248, 0.25);
+  background-color: #1e335a;
+  color: #bae6fd;
+  border: 1px solid #38bdf8;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .option-marker {
+  border-color: #3b5078;
+  background-color: #0d1628;
+}
+
+[data-theme="dark"] .option-kbd-hint {
+  background: #1e335a;
+  border: 1px solid #334e7d;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .option-item:hover {
+  background-color: #1e3158;
+  border-color: #38bdf8;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.18);
+}
+
+[data-theme="dark"] .option-item:hover .option-label {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .option-item:hover .option-letter-badge {
+  background-color: #0284c7;
+  color: #ffffff;
+  border-color: #7dd3fc;
+}
+
+[data-theme="dark"] .option-item.selected {
+  background-color: rgba(20, 184, 166, 0.22);
+  border-color: #2dd4bf;
+  box-shadow: 0 0 20px rgba(20, 184, 166, 0.35), inset 0 0 12px rgba(20, 184, 166, 0.1);
+}
+
+[data-theme="dark"] .option-item.selected .option-label {
+  color: #5eead4 !important;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .option-item.selected .option-letter-badge {
+  background-color: #0d9488;
+  color: #ffffff;
+  border-color: #2dd4bf;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.4);
+}
+
+[data-theme="dark"] .option-item.selected .option-marker {
+  background-color: #14b8a6;
+  border-color: #2dd4bf;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.5);
+}
+
+[data-theme="dark"] .option-sub-badge {
+  background-color: rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+  color: #6ee7b7;
 }
 
 [data-theme="dark"] .progress-track {
@@ -1532,21 +1793,21 @@
 }
 
 [data-theme="dark"] .question-category-pill {
-  background-color: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.25);
+  background-color: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+  border-color: rgba(56, 189, 248, 0.35);
 }
 
 [data-theme="dark"] .question-remaining-pill {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
-  border-color: var(--color-border);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 [data-theme="dark"] .anonymity-badge {
-  background-color: rgba(20, 184, 166, 0.1);
+  background-color: rgba(20, 184, 166, 0.12);
   color: #2dd4bf;
-  border-color: rgba(20, 184, 166, 0.25);
+  border-color: rgba(20, 184, 166, 0.3);
 }
 
 [data-theme="dark"] .btn-nav:hover:not(:disabled) {
@@ -1560,30 +1821,139 @@
   color: #cbd5e1;
 }
 
+/* Modal de Ano Escolar no Tema Escuro */
 [data-theme="dark"] .school-year-sheet {
-  background-color: #101a30;
-  border-color: var(--color-border);
+  background-color: #0f182c;
+  border: 1px solid #233b67;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .school-year-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .school-year-desc {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .selected-age-chip {
+  background-color: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
 }
 
 [data-theme="dark"] .school-year-btn {
-  background-color: rgba(22, 36, 66, 0.6);
-  border-color: var(--color-border);
-  color: var(--color-text-main);
+  background-color: #162442;
+  border-color: #233b67;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .school-year-btn span {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .school-year-btn .opt-badge {
+  background-color: #1e335a;
+  border: 1px solid #38bdf8;
+  color: #bae6fd;
+}
+
+[data-theme="dark"] .school-year-btn .opt-check {
+  border-color: #3b5078;
+  background-color: #0d1628;
 }
 
 [data-theme="dark"] .school-year-btn:hover {
-  background-color: rgba(22, 36, 66, 0.95);
-  border-color: var(--color-secondary);
+  background-color: #1e3158;
+  border-color: #38bdf8;
+}
+
+[data-theme="dark"] .school-year-btn:hover span {
+  color: #ffffff;
 }
 
 [data-theme="dark"] .school-year-btn.selected {
-  background-color: rgba(20, 184, 166, 0.16);
-  border-color: var(--color-secondary);
+  background-color: rgba(20, 184, 166, 0.22);
+  border-color: #2dd4bf;
+  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+}
+
+[data-theme="dark"] .school-year-btn.selected span {
+  color: #5eead4;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .school-year-btn.selected .opt-badge {
+  background-color: #0d9488;
+  color: #ffffff;
+  border-color: #2dd4bf;
+}
+
+[data-theme="dark"] .school-year-btn.selected .opt-check {
+  background-color: #14b8a6;
+  border-color: #2dd4bf;
+}
+
+[data-theme="dark"] .btn-cancel-sheet {
+  color: #94a3b8;
 }
 
 [data-theme="dark"] .btn-cancel-sheet:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #f1f5f9;
+  color: #f8fafc;
+}
+
+/* Modal de Confirmação Final de Envio no Tema Escuro */
+[data-theme="dark"] .submission-confirm-sheet {
+  background-color: #0f182c;
+  border: 1px solid #233b67;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .confirm-crest-wrap {
+  background: rgba(20, 184, 166, 0.15);
+  border-color: rgba(20, 184, 166, 0.35);
+  color: #2dd4bf;
+}
+
+[data-theme="dark"] .confirm-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .confirm-desc {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .confirm-summary-box {
+  background: #162442;
+  border-color: #233b67;
+}
+
+[data-theme="dark"] .confirm-summary-item {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .confirm-check-icon {
+  background: #1e335a;
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .btn-confirm-submit {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  box-shadow: 0 4px 20px rgba(20, 184, 166, 0.4);
+}
+
+[data-theme="dark"] .btn-confirm-submit:hover {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  box-shadow: 0 6px 24px rgba(20, 184, 166, 0.55);
+}
+
+[data-theme="dark"] .btn-review-answers {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .btn-review-answers:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
 }
 
 [data-theme="dark"] .protocol-box {
@@ -1610,6 +1980,16 @@
   background: rgba(56, 189, 248, 0.12);
   border-color: rgba(56, 189, 248, 0.25);
   color: #7dd3fc;
+}
+
+[data-theme="dark"] .non-user-hint-badge {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #7dd3fc;
+}
+
+[data-theme="dark"] .non-user-hint-badge strong {
+  color: #ffffff;
 }
 
 

@@ -247,7 +247,8 @@ export default async function handler(req, res) {
     }
 
     const result = await supabaseRes.json();
-    const receiptCode = `MED-${submission_token.slice(0, 8).toUpperCase()}`;
+    const cleanToken = (submission_token || "").replace(/[^a-fA-F0-9]/g, "").toUpperCase();
+    const receiptCode = `MED-${cleanToken.slice(0, 4)}-${cleanToken.slice(4, 8)}-${cleanToken.slice(8, 12)}`;
 
     // Persistência de Cookie de Conclusão no Header HTTP para Prevenção Anti-Fraude
     res.setHeader("Set-Cookie", [
