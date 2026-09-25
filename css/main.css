@@ -77,6 +77,64 @@
   --duration-slow: 0.4s;
 }
 
+/* ==========================================================================
+   TEMA ESCURO - IDOMED MEDICINA (High-Contrast Academic Dark Mode)
+   ========================================================================== */
+[data-theme="dark"] {
+  --color-primary: #38bdf8;
+  --color-primary-dark: #0284c7;
+  --color-primary-hover: #7dd3fc;
+  --color-primary-light: rgba(56, 189, 248, 0.14);
+  --color-primary-rgb: 56, 189, 248;
+
+  --color-secondary: #14b8a6;
+  --color-secondary-dark: #0d9488;
+  --color-secondary-hover: #2dd4bf;
+  --color-secondary-light: rgba(20, 184, 166, 0.16);
+  --color-secondary-rgb: 20, 184, 166;
+
+  --color-accent: #34d399;
+  --color-accent-gold: #fbbf24;
+
+  /* Superfícies Escuras Clínicas */
+  --color-bg-base: #0a1120;
+  --color-surface: #101a30;
+  --color-surface-translucent: rgba(16, 26, 48, 0.94);
+  --color-surface-hover: #162442;
+  --color-border: #1e335a;
+  --color-border-subtle: rgba(30, 51, 90, 0.75);
+  --color-border-active: #14b8a6;
+
+  /* Tipografia Médica Escura */
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-text-subtle: #64748b;
+  --color-text-inverse: #0a1120;
+
+  /* Estados Funcionais */
+  --color-success: #34d399;
+  --color-success-bg: rgba(52, 211, 153, 0.14);
+  --color-error: #f87171;
+  --color-error-bg: rgba(248, 113, 113, 0.14);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.14);
+
+  /* Sombras Profundas com Brilho Cirúrgico */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.55), 0 2px 6px -1px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 36px -4px rgba(0, 0, 0, 0.65);
+  --shadow-glow: 0 0 24px rgba(20, 184, 166, 0.3);
+  --shadow-card: 0 24px 50px -12px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] body {
+  background-color: var(--color-bg-base);
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(20, 184, 166, 0.09) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, #0a1120 0%, #060b16 100%);
+}
+
 /* Reset e Normalização Estrita */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -213,3 +271,117 @@ button {
   animation: beaconPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   flex-shrink: 0;
 }
+
+/* ==========================================================================
+   EFEITOS DE RELANCE AMBIENTAL MÉDICO (Superior e Inferior)
+   ========================================================================== */
+.ambient-glance-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #003b71 15%, 
+    #00a896 45%, 
+    #02c39a 55%, 
+    #38bdf8 85%, 
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: glanceSweep 4.5s ease-in-out infinite;
+  box-shadow: 0 0 16px rgba(0, 168, 150, 0.6);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.ambient-glance-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #38bdf8 15%, 
+    #02c39a 45%, 
+    #00a896 55%, 
+    #003b71 85%, 
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: glanceSweep 4.5s ease-in-out infinite reverse;
+  box-shadow: 0 -2px 16px rgba(0, 168, 150, 0.45);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+@keyframes glanceSweep {
+  0% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* ==========================================================================
+   BOTÃO DE ALTERNÂNCIA DE TEMA (CLARO / ESCURO)
+   ========================================================================== */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-full);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  line-height: 1;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.38);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.theme-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.theme-toggle-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+[data-theme="dark"] .theme-toggle-btn {
+  background: rgba(30, 51, 90, 0.6);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+  background: rgba(30, 51, 90, 0.9);
+  border-color: var(--color-secondary);
+}
+

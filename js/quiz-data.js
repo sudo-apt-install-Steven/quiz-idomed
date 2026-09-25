@@ -59,7 +59,8 @@ window.QUIZ_QUESTIONS = Object.freeze([
       "Pod descartável",
       "Pod recarregável",
       "Vape Mod tradicional",
-      "Não sei a diferença"
+      "Não sei a diferença",
+      "Não se aplica / Nunca usei"
     ]
   },
   {
@@ -72,7 +73,8 @@ window.QUIZ_QUESTIONS = Object.freeze([
       "Curiosidade",
       "Influência dos amigos",
       "Redes sociais (TikTok/Instagram)",
-      "Alívio de estresse"
+      "Alívio de estresse",
+      "Não se aplica / Nunca usei"
     ]
   },
   {
@@ -96,7 +98,8 @@ window.QUIZ_QUESTIONS = Object.freeze([
       "Lojas físicas / Tabacarias",
       "Internet / Redes sociais",
       "Amigos mais velhos",
-      "Escondido da família"
+      "Escondido da família",
+      "Não se aplica / Nunca usei"
     ]
   },
   {

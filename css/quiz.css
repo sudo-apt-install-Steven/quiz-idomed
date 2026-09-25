@@ -40,6 +40,15 @@
   border-bottom: 3px solid var(--color-secondary);
 }
 
+.header-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
 .header-status-pill {
   display: inline-flex;
   align-items: center;
@@ -51,7 +60,6 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   padding: 4px 12px;
   border-radius: var(--radius-full);
-  margin-bottom: 12px;
   letter-spacing: 0.4px;
 }
 
@@ -1133,4 +1141,383 @@
   border-radius: 6px;
   margin-bottom: 12px;
 }
+
+/* ==========================================================================
+   Monitor Bioético & Barra de Carregamento para Conexões Lentas
+   ========================================================================== */
+.medical-monitor-box {
+  background: rgba(3, 16, 36, 0.96);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 168, 150, 0.45);
+  padding: 16px;
+  margin: 18px 0;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.6), 0 4px 18px rgba(0, 168, 150, 0.15);
+  text-align: left;
+}
+
+.medical-monitor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #38bdf8;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.vital-rate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+}
+
+.vital-heart-pulse {
+  display: inline-block;
+  animation: heartPulse 1.2s infinite;
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.3); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.2); }
+}
+
+.ecg-monitor-display {
+  height: 58px;
+  width: 100%;
+  position: relative;
+  background: linear-gradient(180deg, rgba(0, 35, 30, 0.3) 0%, rgba(0, 15, 25, 0.65) 100%);
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(0, 168, 150, 0.3);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.ecg-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0, 168, 150, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 168, 150, 0.1) 1px, transparent 1px);
+  background-size: 10px 10px;
+  pointer-events: none;
+}
+
+.ecg-svg-wave {
+  width: 100%;
+  height: 100%;
+}
+
+.ecg-path-trace {
+  fill: none;
+  stroke: #02c39a;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px #02c39a);
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: ecgTraceSweep 2.2s linear infinite;
+}
+
+@keyframes ecgTraceSweep {
+  0% { stroke-dashoffset: 600; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.medical-loading-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+  margin-top: 14px;
+  overflow: hidden;
+  position: relative;
+}
+
+.medical-loading-bar-fill {
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(90deg, #003b71, #00a896, #02c39a, #38bdf8);
+  border-radius: var(--radius-full);
+  position: relative;
+  animation: medicalBarShift 1.8s ease-in-out infinite;
+}
+
+@keyframes medicalBarShift {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(250%); }
+}
+
+.slow-connection-warning {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  display: none;
+  animation: fadeInSlowNotice 0.3s ease-out;
+  text-align: left;
+}
+
+.slow-connection-warning.active {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+@keyframes fadeInSlowNotice {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Painel de Bloqueio Anti-Fraude / Participação Já Registrada
+   ========================================================================== */
+.verified-crest-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  border: 2px solid var(--color-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: var(--color-secondary);
+  box-shadow: 0 0 20px rgba(0, 168, 150, 0.25);
+}
+
+.verified-svg {
+  width: 36px;
+  height: 36px;
+}
+
+.verified-stamp {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-secondary);
+  background: var(--color-secondary-light);
+  border: 1px solid var(--color-secondary);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+
+.protocol-box {
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin: 18px 0;
+  text-align: left;
+}
+
+.protocol-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--color-border-subtle);
+}
+
+.protocol-row:last-child {
+  border-bottom: none;
+}
+
+.protocol-label {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.protocol-val {
+  font-weight: 700;
+  color: var(--color-text-main);
+  font-family: monospace;
+}
+
+.protocol-val.success {
+  color: var(--color-success);
+}
+
+.device-sharing-box {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.sharing-note {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.btn-share-device {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  background: transparent;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-share-device:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   TEMA ESCURO - QUIZ OVERRIDES
+   ========================================================================== */
+[data-theme="dark"] .quiz-header {
+  background: linear-gradient(135deg, #0f1c36 0%, #070e1d 100%);
+  border-bottom: 3px solid #14b8a6;
+}
+
+[data-theme="dark"] .quiz-card {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme="dark"] .option-item {
+  background-color: rgba(22, 36, 66, 0.6);
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+[data-theme="dark"] .option-item:hover {
+  background-color: rgba(22, 36, 66, 0.95);
+  border-color: var(--color-secondary);
+}
+
+[data-theme="dark"] .option-item.selected {
+  background-color: rgba(20, 184, 166, 0.16);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 16px rgba(20, 184, 166, 0.25);
+}
+
+[data-theme="dark"] .option-item.selected .option-label {
+  color: #2dd4bf;
+}
+
+[data-theme="dark"] .option-letter-badge {
+  background-color: rgba(30, 51, 90, 0.8);
+  color: #7dd3fc;
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="dark"] .progress-track {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .question-category-pill {
+  background-color: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="dark"] .question-remaining-pill {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .anonymity-badge {
+  background-color: rgba(20, 184, 166, 0.1);
+  color: #2dd4bf;
+  border-color: rgba(20, 184, 166, 0.25);
+}
+
+[data-theme="dark"] .btn-nav:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .keyboard-hints kbd {
+  background: rgba(30, 51, 90, 0.8);
+  border-color: var(--color-border);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .school-year-sheet {
+  background-color: #101a30;
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .school-year-btn {
+  background-color: rgba(22, 36, 66, 0.6);
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+[data-theme="dark"] .school-year-btn:hover {
+  background-color: rgba(22, 36, 66, 0.95);
+  border-color: var(--color-secondary);
+}
+
+[data-theme="dark"] .school-year-btn.selected {
+  background-color: rgba(20, 184, 166, 0.16);
+  border-color: var(--color-secondary);
+}
+
+[data-theme="dark"] .btn-cancel-sheet:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .protocol-box {
+  background: rgba(16, 26, 48, 0.6);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .btn-share-device {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+[data-theme="dark"] .btn-share-device:hover {
+  background: rgba(20, 184, 166, 0.15);
+}
+
+[data-theme="dark"] .privacy-box {
+  background: rgba(16, 26, 48, 0.7);
+  border-color: var(--color-border);
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .question-step-hint {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.25);
+  color: #7dd3fc;
+}
+
 

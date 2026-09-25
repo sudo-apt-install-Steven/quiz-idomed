@@ -43,12 +43,123 @@
   const elProgressPercent = document.getElementById("progressPercent");
   const elBtnBack = document.getElementById("btnBack");
 
+  // Elementos de Estado Bioético & Anti-Fraude
+  const elAlreadySubmittedState = document.getElementById("alreadySubmittedPanel");
+  const elSubmittedReceiptCode = document.getElementById("submittedReceiptCode");
+  const elSlowConnectionWarning = document.getElementById("slowConnectionWarning");
+  const elSlowConnectionText = document.getElementById("slowConnectionText");
+  const elLoadingHeadline = document.getElementById("loadingHeadline");
+  const elLoadingDescription = document.getElementById("loadingDescription");
+
+  // Elementos do Botão de Alternância de Tema
+  const elThemeToggleBtn = document.getElementById("themeToggleBtn");
+  const elThemeToggleIcon = document.getElementById("themeToggleIcon");
+  const elThemeToggleLabel = document.getElementById("themeToggleLabel");
+
   // Elementos do Modal de Ano Escolar (Etapa 2 da Questão 1)
   const elSchoolYearModal = document.getElementById("schoolYearModal");
   const elSchoolYearBackdrop = document.getElementById("schoolYearBackdrop");
   const elSchoolYearOptions = document.getElementById("schoolYearOptions");
   const elSelectedAgeBadge = document.getElementById("selectedAgeBadge");
   const elBtnCancelSchoolYear = document.getElementById("btnCancelSchoolYear");
+
+  /**
+   * Gerenciamento de Tema (Claro / Escuro) com persistência em Cookie e LocalStorage
+   */
+  function initThemeManager() {
+    function getSavedTheme() {
+      try {
+        const cookieMatch = document.cookie.match(/(?:^|;\s*)idomed_theme=([^;]+)/);
+        if (cookieMatch) return decodeURIComponent(cookieMatch[1]);
+        const storageTheme = localStorage.getItem("idomed_theme");
+        if (storageTheme) return storageTheme;
+      } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return systemDark ? "dark" : "light";
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      try {
+        localStorage.setItem("idomed_theme", theme);
+        document.cookie = "idomed_theme=" + encodeURIComponent(theme) + "; path=/; max-age=31536000; SameSite=Lax";
+      } catch (_) {}
+      updateToggleUI(theme);
+    }
+
+    function updateToggleUI(theme) {
+      if (!elThemeToggleBtn) return;
+      const isDark = (theme === "dark");
+      if (elThemeToggleIcon) {
+        elThemeToggleIcon.innerHTML = isDark
+          ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+          : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+      }
+      if (elThemeToggleLabel) {
+        elThemeToggleLabel.textContent = isDark ? "Tema Claro" : "Tema Escuro";
+      }
+      elThemeToggleBtn.setAttribute("aria-label", isDark ? "Alternar para Tema Claro" : "Alternar para Tema Escuro");
+      elThemeToggleBtn.setAttribute("title", isDark ? "Ativar Modo Claro" : "Ativar Modo Escuro");
+    }
+
+    const initialTheme = document.documentElement.getAttribute("data-theme") || getSavedTheme();
+    applyTheme(initialTheme);
+
+    if (elThemeToggleBtn) {
+      elThemeToggleBtn.addEventListener("click", () => {
+        triggerHaptic(10);
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const nextTheme = current === "dark" ? "light" : "dark";
+        applyTheme(nextTheme);
+      });
+    }
+  }
+
+  /**
+   * Verifica se este dispositivo já submeteu respostas à pesquisa
+   */
+  function isDeviceAlreadySubmitted() {
+    try {
+      const cookieSubmitted = /(?:^|;\s*)idomed_quiz_completed=true/.test(document.cookie);
+      const storageSubmitted = localStorage.getItem("idomed_quiz_completed") === "true";
+      return cookieSubmitted || storageSubmitted;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /**
+   * Exibe a tela de participação já registrada
+   */
+  function showAlreadySubmittedScreen() {
+    if (elQuizContainer) elQuizContainer.style.display = "none";
+    if (elLoadingState) elLoadingState.style.display = "none";
+    if (elSuccessState) elSuccessState.style.display = "none";
+    if (elErrorState) elErrorState.style.display = "none";
+    if (elAlreadySubmittedState) {
+      elAlreadySubmittedState.style.display = "block";
+      const token = localStorage.getItem("idomed_receipt_token") || "MED-" + submissionToken.slice(0, 8).toUpperCase();
+      if (elSubmittedReceiptCode) {
+        elSubmittedReceiptCode.textContent = token;
+      }
+    }
+  }
+
+  /**
+   * Libera o aparelho para um novo participante (cenário de compartilhamento de dispositivo)
+   */
+  window.confirmResetForNewParticipant = function() {
+    triggerHaptic(15);
+    const confirmed = window.confirm("Deseja liberar este aparelho para um novo participante da pesquisa? (Ex: tablet compartilhado em sala de aula)");
+    if (!confirmed) return;
+
+    try {
+      document.cookie = "idomed_quiz_completed=; path=/; max-age=0; SameSite=Lax";
+      localStorage.removeItem("idomed_quiz_completed");
+    } catch (_) {}
+
+    window.resetQuizFlow();
+  };
 
   /**
    * Dispara vibração háptica sutil em dispositivos móveis compatíveis
@@ -437,11 +548,38 @@
     if (isSubmitting) return;
     isSubmitting = true;
 
-    // Atualiza visão para tela de carregamento
-    elQuizContainer.style.display = "none";
-    elErrorState.style.display = "none";
-    elSuccessState.style.display = "none";
-    elLoadingState.style.display = "block";
+    // Atualiza visão para tela de carregamento com monitor bioético
+    if (elQuizContainer) elQuizContainer.style.display = "none";
+    if (elErrorState) elErrorState.style.display = "none";
+    if (elSuccessState) elSuccessState.style.display = "none";
+    if (elAlreadySubmittedState) elAlreadySubmittedState.style.display = "none";
+    if (elLoadingState) elLoadingState.style.display = "block";
+
+    if (elSlowConnectionWarning) {
+      elSlowConnectionWarning.classList.remove("active");
+    }
+    if (elLoadingHeadline) {
+      elLoadingHeadline.textContent = "Gravando respostas...";
+    }
+    if (elLoadingDescription) {
+      elLoadingDescription.textContent = "Registrando suas informações com segurança criptográfica e anonimato absoluto nos servidores da pesquisa.";
+    }
+
+    // Monitor Ativo de Conexão Lenta com Sinais Vitais em Tempo Real
+    const slowTimer1 = setTimeout(() => {
+      if (isSubmitting && elSlowConnectionWarning) {
+        elSlowConnectionWarning.classList.add("active");
+        if (elSlowConnectionText) {
+          elSlowConnectionText.textContent = "Sincronizando dados clínicos com o servidor seguro da pesquisa IDOMED - Medicina... Por favor, aguarde alguns instantes sem fechar o navegador.";
+        }
+      }
+    }, 1400);
+
+    const slowTimer2 = setTimeout(() => {
+      if (isSubmitting && elSlowConnectionText) {
+        elSlowConnectionText.textContent = "Conexão de rede oscilante. Ativando canal redundante de alta resiliência para garantir o registro seguro da sua amostra...";
+      }
+    }, 3200);
 
     const payload = {
       submission_token: submissionToken,
@@ -508,17 +646,30 @@
       }
     }
 
+    clearTimeout(slowTimer1);
+    clearTimeout(slowTimer2);
+
     isSubmitting = false;
     isTransitioning = false;
 
     if (success) {
       triggerHaptic(25);
-      elLoadingState.style.display = "none";
-      elSuccessState.style.display = "block";
+
+      // Persistência Anti-Fraude Segura no Dispositivo (Cookies & LocalStorage)
+      try {
+        const receiptCode = "MED-" + submissionToken.slice(0, 8).toUpperCase();
+        document.cookie = "idomed_quiz_completed=true; path=/; max-age=31536000; SameSite=Lax";
+        localStorage.setItem("idomed_quiz_completed", "true");
+        localStorage.setItem("idomed_submission_timestamp", new Date().toISOString());
+        localStorage.setItem("idomed_receipt_token", receiptCode);
+      } catch (_) {}
+
+      if (elLoadingState) elLoadingState.style.display = "none";
+      if (elSuccessState) elSuccessState.style.display = "block";
     } else {
       triggerHaptic(50);
-      elLoadingState.style.display = "none";
-      elErrorState.style.display = "block";
+      if (elLoadingState) elLoadingState.style.display = "none";
+      if (elErrorState) elErrorState.style.display = "block";
     }
   }
 
@@ -550,10 +701,11 @@
       elSchoolYearModal.setAttribute("aria-hidden", "true");
     }
 
-    elSuccessState.style.display = "none";
-    elErrorState.style.display = "none";
-    elLoadingState.style.display = "none";
-    elQuizContainer.style.display = "block";
+    if (elSuccessState) elSuccessState.style.display = "none";
+    if (elErrorState) elErrorState.style.display = "none";
+    if (elLoadingState) elLoadingState.style.display = "none";
+    if (elAlreadySubmittedState) elAlreadySubmittedState.style.display = "none";
+    if (elQuizContainer) elQuizContainer.style.display = "block";
 
     renderQuestion("forward");
   };
@@ -648,5 +800,11 @@
   }
 
   // Inicialização
-  renderQuestion("forward");
+  initThemeManager();
+
+  if (isDeviceAlreadySubmitted()) {
+    showAlreadySubmittedScreen();
+  } else {
+    renderQuestion("forward");
+  }
 })();

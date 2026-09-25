@@ -4,9 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://awetqrqxvosoejxnwlsx.supabase.co;">
-  <title>Pesquisa sobre Vape e Pod - IDOMED FAMEJIPA</title>
-  <meta name="description" content="Pesquisa acadêmica sobre o uso de cigarros eletrônicos (vape/pod) entre jovens. Realizada pela Faculdade de Medicina de Ji-Paraná (IDOMED / FAMEJIPA). Participação 100% anônima.">
+  <title>Pesquisa sobre Vape e Pod - IDOMED - Medicina</title>
+  <meta name="description" content="Pesquisa acadêmica sobre o uso de cigarros eletrônicos (vape/pod) entre jovens. Realizada pela Faculdade de Medicina de Ji-Paraná (IDOMED - Medicina / FAMEJIPA). Participação 100% anônima.">
   <meta name="theme-color" content="#003b71">
+
+  <!-- Script Anti-FOUC Instantâneo (Prevenção de Flash de Tema Incorreto) -->
+  <script>
+    (function() {
+      try {
+        var cookieMatch = document.cookie.match(/(?:^|;\s*)idomed_theme=([^;]+)/);
+        var savedTheme = cookieMatch ? decodeURIComponent(cookieMatch[1]) : localStorage.getItem("idomed_theme");
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = savedTheme || (prefersDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (_) {}
+    })();
+  </script>
 
   <!-- Favicon Institucional IDOMED -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -23,22 +36,37 @@
 </head>
 <body>
 
+  <!-- Barras de Relance Ambiental Institucional (Superior e Inferior) -->
+  <div class="ambient-glance-top" aria-hidden="true"></div>
+  <div class="ambient-glance-bottom" aria-hidden="true"></div>
+
   <div class="quiz-wrapper">
     <main class="quiz-card" role="main">
       
       <!-- Cabeçalho Institucional Oficial -->
       <header class="quiz-header">
-        <div class="header-status-pill">
-          <span class="status-pulse-dot" aria-hidden="true"></span>
-          <span>Pesquisa Ativa • 100% Anônima</span>
+        <div class="header-top-bar">
+          <div class="header-status-pill">
+            <span class="status-pulse-dot" aria-hidden="true"></span>
+            <span>Pesquisa Ativa • 100% Anônima</span>
+          </div>
+
+          <!-- Botão de Alternância de Tema Visual (Claro / Escuro) -->
+          <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar para Tema Escuro" title="Alternar tema visual">
+            <span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+            <span class="theme-toggle-label" id="themeToggleLabel">Tema Escuro</span>
+          </button>
         </div>
+
         <div class="header-crest" aria-hidden="true">
           <!-- Cruz Médica Institucional SVG -->
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/>
           </svg>
         </div>
-        <h1 class="brand-title">IDOMED</h1>
+        <h1 class="brand-title">IDOMED - Medicina</h1>
         <div class="brand-faculty">FAMEJIPA • Faculdade de Medicina de Ji-Paraná</div>
         <div class="brand-badge">Pesquisa Científica Acadêmica</div>
       </header>
@@ -96,14 +124,84 @@
 
       </section>
 
-      <!-- Tela de Envio / Carregamento -->
+      <!-- Tela de Envio / Carregamento com Monitor Clínico de Sinais Vitais & Resiliência a Conexões Lentas -->
       <section class="state-panel" id="loadingStatePanel" aria-live="assertive">
-        <div class="loading-spinner-wrap" aria-hidden="true">
-          <div class="loading-pulse-ring"></div>
-          <div class="loading-spinner"></div>
+        <div class="medical-monitor-box">
+          <div class="medical-monitor-header">
+            <span>Monitor Clínico Bioético</span>
+            <span class="vital-rate-badge">
+              <span class="vital-heart-pulse" aria-hidden="true">❤️</span>
+              <span>Sinal Vital Ativo</span>
+            </span>
+          </div>
+          <div class="ecg-monitor-display" aria-hidden="true">
+            <div class="ecg-grid-overlay"></div>
+            <svg class="ecg-svg-wave" viewBox="0 0 300 60" preserveAspectRatio="none">
+              <path class="ecg-path-trace" d="M 0 30 L 40 30 Q 50 20 60 30 L 80 30 L 90 35 L 100 5 L 110 55 L 120 30 L 140 30 Q 155 18 170 30 L 220 30 L 230 35 L 240 5 L 250 55 L 260 30 L 300 30" />
+            </svg>
+          </div>
+          <div class="medical-loading-bar-track" aria-hidden="true">
+            <div class="medical-loading-bar-fill"></div>
+          </div>
+          <div class="slow-connection-warning" id="slowConnectionWarning" role="status">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div>
+              <strong>Conexão Lenta ou Instável Detectada:</strong>
+              <div id="slowConnectionText">Sincronizando dados clínicos com o servidor seguro da pesquisa IDOMED - Medicina... Por favor, aguarde alguns instantes sem fechar o navegador.</div>
+            </div>
+          </div>
         </div>
-        <h2 class="state-headline">Gravando respostas...</h2>
-        <p class="state-description">Registrando suas informações com segurança criptográfica e anonimato absoluto nos servidores da pesquisa.</p>
+        <h2 class="state-headline" id="loadingHeadline">Gravando respostas...</h2>
+        <p class="state-description" id="loadingDescription">Registrando suas informações com segurança criptográfica e anonimato absoluto nos servidores da pesquisa.</p>
+      </section>
+
+      <!-- Tela de Bloqueio Anti-Fraude / Participação Já Registrada Neste Dispositivo -->
+      <section class="state-panel" id="alreadySubmittedPanel" aria-live="polite" style="display: none;">
+        <div class="verified-crest-wrap" aria-hidden="true">
+          <svg class="verified-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
+        <span class="verified-stamp">Participação Já Registrada</span>
+        <h2 class="state-headline">Pesquisa Concluída Neste Dispositivo</h2>
+        <p class="state-description">
+          Identificamos que uma resposta anônima já foi enviada através deste navegador. Para resguardar o rigor bioético e a acurácia amostral da pesquisa IDOMED - Medicina, respostas duplicadas são prevenidas neste aparelho.
+        </p>
+
+        <div class="protocol-box">
+          <div class="protocol-row">
+            <span class="protocol-label">Protocolo Anônimo:</span>
+            <span class="protocol-val" id="submittedReceiptCode">MED-CONFIRMADO</span>
+          </div>
+          <div class="protocol-row">
+            <span class="protocol-label">Status da Amostra:</span>
+            <span class="protocol-val success">✓ Integrada ao Observatório</span>
+          </div>
+          <div class="protocol-row">
+            <span class="protocol-label">Privacidade:</span>
+            <span class="protocol-val">100% Anônima • RLS Ativo</span>
+          </div>
+        </div>
+
+        <div class="device-sharing-box">
+          <p class="sharing-note">
+            <strong>Compartilhando este dispositivo?</strong> Se este aparelho estiver sendo compartilhado com outro estudante na faculdade/escola, libere o formulário abaixo:
+          </p>
+          <button type="button" class="btn-share-device" onclick="confirmResetForNewParticipant()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Liberar Aparelho para Novo Participante</span>
+          </button>
+        </div>
       </section>
 
       <!-- Tela de Sucesso com SVG Animado -->

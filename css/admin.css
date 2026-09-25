@@ -878,3 +878,114 @@
     height: 240px !important;
   }
 }
+
+/* ==========================================================================
+   TEMA ESCURO - ADMIN DASHBOARD OVERRIDES
+   ========================================================================== */
+[data-theme="dark"] .admin-navbar {
+  background-color: rgba(16, 26, 48, 0.95);
+  border-bottom-color: var(--color-border);
+}
+
+[data-theme="dark"] .admin-brand-sub {
+  color: #7dd3fc;
+}
+
+[data-theme="dark"] .login-card,
+[data-theme="dark"] .filters-bar,
+[data-theme="dark"] .metric-card,
+[data-theme="dark"] .insights-panel,
+[data-theme="dark"] .comparison-card,
+[data-theme="dark"] .q-stat-card,
+[data-theme="dark"] .table-panel,
+[data-theme="dark"] .modal-sheet {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .filter-select,
+[data-theme="dark"] .table-search-input,
+[data-theme="dark"] .qr-meta-input {
+  background-color: #0b1424;
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .filter-select:focus,
+[data-theme="dark"] .table-search-input:focus,
+[data-theme="dark"] .qr-meta-input:focus {
+  border-color: var(--color-secondary);
+}
+
+[data-theme="dark"] .btn-action.secondary {
+  background-color: rgba(30, 51, 90, 0.6);
+  border-color: var(--color-border);
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .btn-action.secondary:hover {
+  background-color: rgba(30, 51, 90, 0.95);
+  border-color: var(--color-secondary);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .responses-table th {
+  background-color: #0d1629;
+  border-bottom-color: var(--color-border);
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .responses-table td {
+  border-bottom-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+[data-theme="dark"] .responses-table tr:hover td {
+  background-color: rgba(30, 51, 90, 0.35);
+}
+
+[data-theme="dark"] .table-pill.age {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+[data-theme="dark"] .table-pill.year {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+[data-theme="dark"] .table-pill.contact {
+  background: rgba(20, 184, 166, 0.15);
+  color: #2dd4bf;
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+[data-theme="dark"] .freq-table th,
+[data-theme="dark"] .freq-table td {
+  border-bottom-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+[data-theme="dark"] .freq-table th {
+  color: var(--color-text-muted);
+}
+
+[data-theme="dark"] .badge-top {
+  background: rgba(20, 184, 166, 0.2);
+  color: #2dd4bf;
+}
+
+[data-theme="dark"] .admin-crest {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="dark"] .admin-crest svg {
+  color: #38bdf8;
+}
+

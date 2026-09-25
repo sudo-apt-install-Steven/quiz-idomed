@@ -4,8 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://awetqrqxvosoejxnwlsx.supabase.co;">
-  <title>Painel Administrativo & Estatísticas - Pesquisa Vape/Pod IDOMED</title>
+  <title>Painel Administrativo & Estatísticas - Pesquisa Vape/Pod IDOMED - Medicina</title>
   <meta name="theme-color" content="#003b71">
+
+  <!-- Script Anti-FOUC Instantâneo (Prevenção de Flash de Tema Incorreto) -->
+  <script>
+    (function() {
+      try {
+        var cookieMatch = document.cookie.match(/(?:^|;\s*)idomed_theme=([^;]+)/);
+        var savedTheme = cookieMatch ? decodeURIComponent(cookieMatch[1]) : localStorage.getItem("idomed_theme");
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = savedTheme || (prefersDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (_) {}
+    })();
+  </script>
 
   <!-- Favicon Institucional IDOMED -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -25,6 +38,10 @@
 </head>
 <body>
 
+  <!-- Barras de Relance Ambiental Institucional (Superior e Inferior) -->
+  <div class="ambient-glance-top" aria-hidden="true"></div>
+  <div class="ambient-glance-bottom" aria-hidden="true"></div>
+
   <div class="admin-wrapper">
     
     <!-- Barra Superior de Navegação -->
@@ -36,8 +53,8 @@
           </svg>
         </div>
         <div>
-          <h1 class="admin-brand-title">IDOMED FAMEJIPA</h1>
-          <div class="admin-brand-sub">Comitê de Pesquisa e Extensão Acadêmica • Observatório Vape & Pod</div>
+          <h1 class="admin-brand-title">IDOMED - Medicina</h1>
+          <div class="admin-brand-sub">FAMEJIPA • Faculdade de Medicina de Ji-Paraná • Observatório Acadêmico Vape & Pod</div>
           <div class="system-status-indicator" style="margin-top: 4px;">
             <span class="status-pulse-dot" aria-hidden="true"></span>
             <span>Observatório Conectado • RLS Ativo</span>
@@ -45,28 +62,38 @@
         </div>
       </div>
 
-      <nav class="admin-nav-actions" id="navActions" style="display: none;" aria-label="Ações do Painel">
-        <button type="button" class="btn-action secondary" id="btnRefreshData" onclick="loadDashboardData()" title="Atualizar Dados em Tempo Real">
-          <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-          <span>Atualizar</span>
+      <div style="display: flex; align-items: center; gap: 10px; margin-left: auto; flex-wrap: wrap;">
+        <!-- Botão de Alternância de Tema Visual (Claro / Escuro) -->
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar para Tema Escuro" title="Alternar tema visual">
+          <span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </span>
+          <span class="theme-toggle-label" id="themeToggleLabel">Tema Escuro</span>
         </button>
-        <button type="button" class="btn-action primary" onclick="openQrModal()" title="Gerar QR Code">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          <span>Gerar QR Code</span>
-        </button>
-        <button type="button" class="btn-action accent" onclick="exportResponsesCSV()" title="Exportar para Excel/SPSS">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span>Exportar CSV</span>
-        </button>
-        <button type="button" class="btn-action secondary" onclick="window.print()" title="Imprimir Relatório Acadêmico">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          <span>Imprimir / PDF</span>
-        </button>
-        <button type="button" class="btn-action danger" onclick="handleLogout()" title="Sair do Sistema">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span>Sair</span>
-        </button>
-      </nav>
+
+        <nav class="admin-nav-actions" id="navActions" style="display: none;" aria-label="Ações do Painel">
+          <button type="button" class="btn-action secondary" id="btnRefreshData" onclick="loadDashboardData()" title="Atualizar Dados em Tempo Real">
+            <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            <span>Atualizar</span>
+          </button>
+          <button type="button" class="btn-action primary" onclick="openQrModal()" title="Gerar QR Code">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Gerar QR Code</span>
+          </button>
+          <button type="button" class="btn-action accent" onclick="exportResponsesCSV()" title="Exportar para Excel/SPSS">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Exportar CSV</span>
+          </button>
+          <button type="button" class="btn-action secondary" onclick="window.print()" title="Imprimir Relatório Acadêmico">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Imprimir / PDF</span>
+          </button>
+          <button type="button" class="btn-action danger" onclick="handleLogout()" title="Sair do Sistema">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Sair</span>
+          </button>
+        </nav>
+      </div>
     </header>
 
     <!-- Tela de Autenticação / Login -->

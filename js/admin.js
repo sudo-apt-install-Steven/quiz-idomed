@@ -93,10 +93,82 @@
     return `"${str.replace(/"/g, '""')}"`;
   }
 
+  // Elementos do Botão de Alternância de Tema
+  const elThemeToggleBtn = document.getElementById("themeToggleBtn");
+  const elThemeToggleIcon = document.getElementById("themeToggleIcon");
+  const elThemeToggleLabel = document.getElementById("themeToggleLabel");
+
+  /**
+   * Atualiza configurações visuais do Chart.js conforme o tema ativo
+   */
+  function updateChartTheme(theme) {
+    if (typeof Chart === "undefined") return;
+    const isDark = (theme === "dark");
+    Chart.defaults.color = isDark ? '#94a3b8' : '#64748b';
+    Chart.defaults.borderColor = isDark ? 'rgba(30, 51, 90, 0.6)' : '#e2e8f0';
+    if (filteredData && filteredData.length > 0) {
+      renderComparisonCharts();
+      renderDetailedQuestionCharts();
+    }
+  }
+
+  /**
+   * Gerenciamento de Tema (Claro / Escuro) com persistência em Cookie e LocalStorage
+   */
+  function initThemeManager() {
+    function getSavedTheme() {
+      try {
+        const cookieMatch = document.cookie.match(/(?:^|;\s*)idomed_theme=([^;]+)/);
+        if (cookieMatch) return decodeURIComponent(cookieMatch[1]);
+        const storageTheme = localStorage.getItem("idomed_theme");
+        if (storageTheme) return storageTheme;
+      } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return systemDark ? "dark" : "light";
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      try {
+        localStorage.setItem("idomed_theme", theme);
+        document.cookie = "idomed_theme=" + encodeURIComponent(theme) + "; path=/; max-age=31536000; SameSite=Lax";
+      } catch (_) {}
+      updateToggleUI(theme);
+      updateChartTheme(theme);
+    }
+
+    function updateToggleUI(theme) {
+      if (!elThemeToggleBtn) return;
+      const isDark = (theme === "dark");
+      if (elThemeToggleIcon) {
+        elThemeToggleIcon.innerHTML = isDark
+          ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+          : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+      }
+      if (elThemeToggleLabel) {
+        elThemeToggleLabel.textContent = isDark ? "Tema Claro" : "Tema Escuro";
+      }
+      elThemeToggleBtn.setAttribute("aria-label", isDark ? "Alternar para Tema Claro" : "Alternar para Tema Escuro");
+      elThemeToggleBtn.setAttribute("title", isDark ? "Ativar Modo Claro" : "Ativar Modo Escuro");
+    }
+
+    const initialTheme = document.documentElement.getAttribute("data-theme") || getSavedTheme();
+    applyTheme(initialTheme);
+
+    if (elThemeToggleBtn) {
+      elThemeToggleBtn.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const nextTheme = current === "dark" ? "light" : "dark";
+        applyTheme(nextTheme);
+      });
+    }
+  }
+
   /**
    * Inicialização do Painel
    */
   function init() {
+    initThemeManager();
     setupEventListeners();
 
     if (authToken) {
@@ -319,11 +391,12 @@
     elKpiActiveUsageRate.textContent = `${activeRate}%`;
     elKpiActiveUsageSub.textContent = `${activeCount} usuários ativos`;
 
-    // 3. Dispositivo Líder
+    // 3. Dispositivo Líder (exclui respostas de não aplicabilidade para capturar o modelo líder real)
     const deviceCounts = {};
     filteredData.forEach(r => {
-      if (r.q4_dispositivo_popular) {
-        deviceCounts[r.q4_dispositivo_popular] = (deviceCounts[r.q4_dispositivo_popular] || 0) + 1;
+      const dev = r.q4_dispositivo_popular;
+      if (dev && dev !== "Não se aplica / Nunca usei" && dev !== "Não sei a diferença") {
+        deviceCounts[dev] = (deviceCounts[dev] || 0) + 1;
       }
     });
     let topDevice = "-";
@@ -334,6 +407,9 @@
         topDevice = dev;
       }
     });
+    if (topDevice === "-" && total > 0) {
+      topDevice = "Sem uso ativo relatado";
+    }
     elKpiTopDevice.textContent = topDevice;
 
     // 4. Percepção de Alto Risco (Tão ou Mais prejudicial)
@@ -369,17 +445,21 @@
     ).length;
     const earlyPct = experienced > 0 ? Math.round((earlyContact / experienced) * 100) : 0;
 
-    // Atrativo mais comum
+    // Atrativo mais comum (filtrando 'Não se aplica / Nunca usei' para obter a motivação real)
     const atrativoCounts = {};
     filteredData.forEach(r => {
-      if (r.q5_atrativo_principal) atrativoCounts[r.q5_atrativo_principal] = (atrativoCounts[r.q5_atrativo_principal] || 0) + 1;
+      if (r.q5_atrativo_principal && r.q5_atrativo_principal !== "Não se aplica / Nunca usei") {
+        atrativoCounts[r.q5_atrativo_principal] = (atrativoCounts[r.q5_atrativo_principal] || 0) + 1;
+      }
     });
     const topAtrativo = Object.keys(atrativoCounts).sort((a,b) => atrativoCounts[b] - atrativoCounts[a])[0] || "Sabores e cheiros doces/frutados";
 
-    // Fonte de aquisição
+    // Fonte de aquisição (filtrando 'Não se aplica / Nunca usei')
     const acessoCounts = {};
     filteredData.forEach(r => {
-      if (r.q7_forma_acesso) acessoCounts[r.q7_forma_acesso] = (acessoCounts[r.q7_forma_acesso] || 0) + 1;
+      if (r.q7_forma_acesso && r.q7_forma_acesso !== "Não se aplica / Nunca usei") {
+        acessoCounts[r.q7_forma_acesso] = (acessoCounts[r.q7_forma_acesso] || 0) + 1;
+      }
     });
     const topAcesso = Object.keys(acessoCounts).sort((a,b) => acessoCounts[b] - acessoCounts[a])[0] || "Lojas físicas / Tabacarias";
 

@@ -11,13 +11,13 @@ const ALLOWED_OPTIONS = [
   // Q3
   ["Menos de 12 anos", "12 a 13 anos", "14 a 15 anos", "16 a 18 anos", "Nunca usei"],
   // Q4
-  ["Pod descartável", "Pod recarregável", "Vape Mod tradicional", "Não sei a diferença"],
+  ["Pod descartável", "Pod recarregável", "Vape Mod tradicional", "Não sei a diferença", "Não se aplica / Nunca usei"],
   // Q5
-  ["Sabores e cheiros doces/frutados", "Curiosidade", "Influência dos amigos", "Redes sociais (TikTok/Instagram)", "Alívio de estresse"],
+  ["Sabores e cheiros doces/frutados", "Curiosidade", "Influência dos amigos", "Redes sociais (TikTok/Instagram)", "Alívio de estresse", "Não se aplica / Nunca usei"],
   // Q6
   ["Nenhum", "Poucos (1 ou 2)", "A maioria", "Todos"],
   // Q7
-  ["Lojas físicas / Tabacarias", "Internet / Redes sociais", "Amigos mais velhos", "Escondido da família"],
+  ["Lojas físicas / Tabacarias", "Internet / Redes sociais", "Amigos mais velhos", "Escondido da família", "Não se aplica / Nunca usei"],
   // Q8
   ["Nunca", "Raramente", "Às vezes", "Diariamente / É muito comum"],
   // Q9
