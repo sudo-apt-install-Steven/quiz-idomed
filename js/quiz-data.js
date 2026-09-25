@@ -8,6 +8,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
     field: "q1_faixa_etaria",
     subField: "q1_ano_escolar",
     hasSubStep: true,
+    category: "Perfil Demográfico",
     q: "Qual é a sua idade e ano escolar?",
     step1Title: "1. Qual é a sua idade?",
     step2Title: "Qual é o seu ano escolar?",
@@ -27,6 +28,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 2,
     field: "q2_contato_vape",
+    category: "Histórico de Experimentação",
     q: "Você já teve contato com cigarro eletrônico (vape/pod)?",
     options: [
       "Nunca experimentei",
@@ -38,6 +40,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 3,
     field: "q3_idade_primeiro_contato",
+    category: "Idade de Iniciação",
     q: "Com qual idade ocorreu o primeiro contato?",
     options: [
       "Menos de 12 anos",
@@ -50,6 +53,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 4,
     field: "q4_dispositivo_popular",
+    category: "Tipos de Dispositivos",
     q: "Qual dispositivo é mais popular entre o seu grupo?",
     options: [
       "Pod descartável",
@@ -61,6 +65,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 5,
     field: "q5_atrativo_principal",
+    category: "Fatores de Atração",
     q: "O que mais atrai a atenção dos jovens para testar?",
     options: [
       "Sabores e cheiros doces/frutados",
@@ -73,6 +78,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 6,
     field: "q6_amigos_usam",
+    category: "Influência Social & Pares",
     q: "Quantos dos seus amigos mais próximos usam vape?",
     options: [
       "Nenhum",
@@ -84,6 +90,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 7,
     field: "q7_forma_acesso",
+    category: "Canais de Aquisição",
     q: "Como a maioria dos jovens consegue esses produtos?",
     options: [
       "Lojas físicas / Tabacarias",
@@ -95,6 +102,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 8,
     field: "q8_frequencia_escola",
+    category: "Ambiente Escolar",
     q: "Com que frequência você vê uso de vape ao redor da escola?",
     options: [
       "Nunca",
@@ -106,6 +114,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 9,
     field: "q9_percepcao_risco",
+    category: "Consciência de Saúde & Risco",
     q: "Qual o grau de risco do vape comparado ao cigarro tradicional?",
     options: [
       "Muito menos prejudicial",
@@ -117,6 +126,7 @@ window.QUIZ_QUESTIONS = Object.freeze([
   {
     id: 10,
     field: "q10_dialogo_prevencao",
+    category: "Diálogo & Ações Preventivas",
     q: "Você já teve conversas sobre os riscos com a escola ou família?",
     options: [
       "Na escola e em casa",

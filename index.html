@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://awetqrqxvosoejxnwlsx.supabase.co;">
   <title>Pesquisa sobre Vape e Pod - IDOMED FAMEJIPA</title>
   <meta name="description" content="Pesquisa acadêmica sobre o uso de cigarros eletrônicos (vape/pod) entre jovens. Realizada pela Faculdade de Medicina de Ji-Paraná (IDOMED / FAMEJIPA). Participação 100% anônima.">
   <meta name="theme-color" content="#003b71">
@@ -27,6 +28,10 @@
       
       <!-- Cabeçalho Institucional Oficial -->
       <header class="quiz-header">
+        <div class="header-status-pill">
+          <span class="status-pulse-dot" aria-hidden="true"></span>
+          <span>Pesquisa Ativa • 100% Anônima</span>
+        </div>
         <div class="header-crest" aria-hidden="true">
           <!-- Cruz Médica Institucional SVG -->
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -50,6 +55,12 @@
           <div class="progress-track" aria-hidden="true">
             <div class="progress-bar" id="progressBar"></div>
           </div>
+        </div>
+
+        <!-- Indicador de Domínio da Pergunta & Contador de Restantes -->
+        <div class="question-meta-bar">
+          <span class="question-category-pill" id="questionCategory">Perfil Demográfico</span>
+          <span class="question-remaining-pill" id="questionRemaining">9 restantes</span>
         </div>
 
         <!-- Pergunta Atual -->
@@ -78,13 +89,21 @@
           </div>
         </footer>
 
+        <div class="keyboard-hints" aria-hidden="true">
+          <span><kbd>1</kbd>–<kbd>5</kbd> Selecionar alternativa</span>
+          <span><kbd>←</kbd> Voltar</span>
+        </div>
+
       </section>
 
       <!-- Tela de Envio / Carregamento -->
       <section class="state-panel" id="loadingStatePanel" aria-live="assertive">
-        <div class="loading-spinner" aria-hidden="true"></div>
+        <div class="loading-spinner-wrap" aria-hidden="true">
+          <div class="loading-pulse-ring"></div>
+          <div class="loading-spinner"></div>
+        </div>
         <h2 class="state-headline">Gravando respostas...</h2>
-        <p class="state-description">Registrando suas informações de forma segura e anônima nos servidores da pesquisa.</p>
+        <p class="state-description">Registrando suas informações com segurança criptográfica e anonimato absoluto nos servidores da pesquisa.</p>
       </section>
 
       <!-- Tela de Sucesso com SVG Animado -->
@@ -94,6 +113,7 @@
             <path d="M14 27 l8 8 l16 -16"/>
           </svg>
         </div>
+        <span class="success-stamp">Submissão Confirmada</span>
         <h2 class="state-headline">Obrigado por participar!</h2>
         <p class="state-description">
           Sua colaboração é fundamental para a análise científica sobre a saúde dos jovens em Ji-Paraná e região.
@@ -101,7 +121,7 @@
 
         <div class="privacy-box">
           <strong>Garantia de Anonimato Institucional:</strong>
-          Esta pesquisa foi desenvolvida com foco total em privacidade. Nenhum nome, e-mail, telefone, endereço IP ou dados pessoais foram solicitados ou gravados.
+          Esta pesquisa foi desenvolvida com foco total em privacidade e bioética. Nenhum nome, e-mail, telefone, endereço IP ou dados pessoais foram solicitados ou gravados.
         </div>
 
         <button type="button" class="btn-primary" onclick="resetQuizFlow()">

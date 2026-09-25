@@ -57,19 +57,38 @@ export default async function handler(req, res) {
   }
 
   try {
+    // 0. Guarda de Tamanho Máximo do Payload (Proteção DoS)
+    if (req.headers && req.headers["content-length"] && parseInt(req.headers["content-length"], 10) > 8192) {
+      return res.status(413).json({
+        success: false,
+        error: "Corpo da requisição excede o limite máximo permitido (8KB)."
+      });
+    }
+
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-    if (!body || typeof body !== "object") {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
       return res.status(400).json({
         success: false,
-        error: "Corpo da requisição inválido."
+        error: "Corpo da requisição inválido. Objeto JSON esperado."
       });
+    }
+
+    // 0.1. Rejeição de Chaves Não Autorizadas (Prevenção de poluição de parâmetros)
+    const ALLOWED_BODY_KEYS = ["submission_token", "answers", "q1_ano_escolar"];
+    for (const key of Object.keys(body)) {
+      if (!ALLOWED_BODY_KEYS.includes(key)) {
+        return res.status(400).json({
+          success: false,
+          error: `Parâmetro não reconhecido na requisição: ${key}.`
+        });
+      }
     }
 
     const { submission_token, answers, q1_ano_escolar } = body;
 
-    // 1. Validação do Token de Idempotência
-    if (!submission_token || !UUID_REGEX.test(submission_token)) {
+    // 1. Validação Estrita do Token de Idempotência (UUID v4)
+    if (!submission_token || typeof submission_token !== "string" || !UUID_REGEX.test(submission_token)) {
       return res.status(400).json({
         success: false,
         error: "Identificador de submissão (submission_token) inválido ou ausente."
@@ -84,40 +103,54 @@ export default async function handler(req, res) {
       });
     }
 
-    // 3. Validação Estrita de Cada Pergunta e Opção Permitida
+    // 3. Validação Estrita de Cada Pergunta e Opção Permitida (Canônica)
+    const sanitizedAnswers = [];
     for (let i = 0; i < 10; i++) {
       const ans = answers[i];
-      if (typeof ans !== "string" || !ALLOWED_OPTIONS[i].includes(ans)) {
+      if (typeof ans !== "string") {
+        return res.status(400).json({
+          success: false,
+          error: `Resposta para a Pergunta ${i + 1} deve ser uma string de texto.`,
+          questionIndex: i + 1
+        });
+      }
+      const matchedOption = ALLOWED_OPTIONS[i].find(opt => opt === ans);
+      if (!matchedOption) {
         return res.status(400).json({
           success: false,
           error: `Resposta inválida ou não autorizada para a Pergunta ${i + 1}.`,
           questionIndex: i + 1
         });
       }
+      sanitizedAnswers.push(matchedOption);
     }
 
     // 3.1. Validação Opcional de Ano Escolar (Etapa 2 da Questão 1)
-    if (q1_ano_escolar && !ALLOWED_SCHOOL_YEARS.includes(q1_ano_escolar)) {
-      return res.status(400).json({
-        success: false,
-        error: "Opção de ano escolar selecionada é inválida."
-      });
+    let sanitizedSchoolYear = null;
+    if (q1_ano_escolar !== undefined && q1_ano_escolar !== null) {
+      if (typeof q1_ano_escolar !== "string" || !ALLOWED_SCHOOL_YEARS.includes(q1_ano_escolar)) {
+        return res.status(400).json({
+          success: false,
+          error: "Opção de ano escolar selecionada é inválida."
+        });
+      }
+      sanitizedSchoolYear = q1_ano_escolar;
     }
 
     // 4. Envio Atômico para o Supabase via RPC
     const rpcPayload = {
       p_submission_token: submission_token,
-      p_q1: answers[0],
-      p_q1_ano: q1_ano_escolar || null,
-      p_q2: answers[1],
-      p_q3: answers[2],
-      p_q4: answers[3],
-      p_q5: answers[4],
-      p_q6: answers[5],
-      p_q7: answers[6],
-      p_q8: answers[7],
-      p_q9: answers[8],
-      p_q10: answers[9]
+      p_q1: sanitizedAnswers[0],
+      p_q1_ano: sanitizedSchoolYear,
+      p_q2: sanitizedAnswers[1],
+      p_q3: sanitizedAnswers[2],
+      p_q4: sanitizedAnswers[3],
+      p_q5: sanitizedAnswers[4],
+      p_q6: sanitizedAnswers[5],
+      p_q7: sanitizedAnswers[6],
+      p_q8: sanitizedAnswers[7],
+      p_q9: sanitizedAnswers[8],
+      p_q10: sanitizedAnswers[9]
     };
 
     const supabaseRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/submit_quiz_response`, {

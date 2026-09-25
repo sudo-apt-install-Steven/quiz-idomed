@@ -65,6 +65,20 @@
   color: var(--color-text-muted);
 }
 
+.system-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.3px;
+}
+
 .admin-nav-actions {
   display: flex;
   align-items: center;
@@ -606,6 +620,34 @@
 
 .data-table tbody tr:hover {
   background-color: #f8fafc;
+}
+
+/* Pílulas de Categoria na Tabela de Microdados */
+.table-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table-pill.age {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.table-pill.year {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.table-pill.contact {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
 }
 
 /* ==========================================================================

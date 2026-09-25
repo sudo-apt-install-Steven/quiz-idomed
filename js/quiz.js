@@ -22,6 +22,8 @@
   let userAnswers = new Array(questions.length).fill(null);
   let selectedSchoolYear = null;
   let pendingAgeSelection = null;
+  let previousAgeSelection = null;
+  let previousSchoolYear = null;
   let isSubmitting = false;
   let submissionToken = generateUUID();
 
@@ -32,6 +34,8 @@
   const elErrorState = document.getElementById("errorStatePanel");
 
   const elQuestionText = document.getElementById("questionText");
+  const elQuestionCategory = document.getElementById("questionCategory");
+  const elQuestionRemaining = document.getElementById("questionRemaining");
   const elOptionsList = document.getElementById("optionsList");
   const elProgressBar = document.getElementById("progressBar");
   const elProgressText = document.getElementById("progressText");
@@ -76,6 +80,8 @@
    * Abre o Modal / Bottom-Sheet para seleção do Ano Escolar
    */
   function openSchoolYearModal(ageText) {
+    previousAgeSelection = userAnswers[0];
+    previousSchoolYear = selectedSchoolYear;
     pendingAgeSelection = ageText;
     if (elSelectedAgeBadge) {
       elSelectedAgeBadge.textContent = ageText;
@@ -133,21 +139,41 @@
   }
 
   /**
-   * Fecha o Modal de Ano Escolar
+   * Fecha o Modal de Ano Escolar restaurando com segurança o estado anterior
    */
   function closeSchoolYearModal() {
     elSchoolYearModal.classList.remove("is-open");
     elSchoolYearModal.setAttribute("aria-hidden", "true");
 
-    // Se o usuário não confirmou o ano escolar, desmarca a opção provisória na tela principal
-    if (!selectedSchoolYear) {
-      const allButtons = elOptionsList.querySelectorAll(".option-item");
-      allButtons.forEach(b => {
+    // Restaura o estado anterior da Questão 1 caso o usuário tenha cancelado a Etapa 2
+    userAnswers[0] = previousAgeSelection;
+    selectedSchoolYear = previousSchoolYear;
+
+    const allButtons = elOptionsList.querySelectorAll(".option-item");
+    allButtons.forEach(b => {
+      const label = b.querySelector(".option-label");
+      if (previousAgeSelection && label && label.textContent === previousAgeSelection) {
+        b.classList.add("selected");
+        b.setAttribute("aria-checked", "true");
+        let subBadge = b.querySelector(".option-sub-badge");
+        if (selectedSchoolYear) {
+          if (!subBadge) {
+            subBadge = document.createElement("span");
+            subBadge.className = "option-sub-badge";
+            const leftContent = b.querySelector(".option-left-content");
+            if (leftContent) leftContent.appendChild(subBadge);
+          }
+          subBadge.textContent = `✓ ${selectedSchoolYear}`;
+        } else if (subBadge) {
+          subBadge.remove();
+        }
+      } else {
         b.classList.remove("selected");
         b.setAttribute("aria-checked", "false");
-      });
-      userAnswers[0] = null;
-    }
+        const subBadge = b.querySelector(".option-sub-badge");
+        if (subBadge) subBadge.remove();
+      }
+    });
   }
 
   /**
@@ -167,6 +193,8 @@
 
     selectedSchoolYear = yearText;
     userAnswers[0] = pendingAgeSelection;
+    previousAgeSelection = pendingAgeSelection;
+    previousSchoolYear = yearText;
 
     // Atualiza botão correspondente na lista principal
     const mainButtons = elOptionsList.querySelectorAll(".option-item");
@@ -179,7 +207,8 @@
         if (!subBadge) {
           subBadge = document.createElement("span");
           subBadge.className = "option-sub-badge";
-          b.querySelector(".option-left-content").appendChild(subBadge);
+          const leftContent = b.querySelector(".option-left-content");
+          if (leftContent) leftContent.appendChild(subBadge);
         }
         subBadge.textContent = `✓ ${yearText}`;
       } else {
@@ -243,6 +272,14 @@
     elProgressText.textContent = `Pergunta ${currentNumber} de ${totalNumber}`;
     elProgressPercent.textContent = `${percentage}%`;
     elBtnBack.disabled = (currentIndex === 0);
+
+    if (elQuestionCategory) {
+      elQuestionCategory.textContent = currentQ.category || "Pesquisa Científica";
+    }
+    if (elQuestionRemaining) {
+      const remainingCount = totalNumber - currentNumber;
+      elQuestionRemaining.textContent = remainingCount > 0 ? `${remainingCount} restantes` : "Última pergunta";
+    }
 
     // Efeito pop suave no contador
     elProgressText.classList.remove("pop");
@@ -541,6 +578,39 @@
       }
     }
   });
+
+  // Suporte a gesto tátil de arrastar para baixo (Swipe to Dismiss) no Mobile
+  const sheetEl = document.querySelector(".school-year-sheet");
+  if (sheetEl) {
+    let touchStartY = 0;
+    let currentDeltaY = 0;
+
+    sheetEl.addEventListener("touchstart", function(e) {
+      if (e.touches && e.touches.length === 1) {
+        touchStartY = e.touches[0].clientY;
+        currentDeltaY = 0;
+      }
+    }, { passive: true });
+
+    sheetEl.addEventListener("touchmove", function(e) {
+      if (e.touches && e.touches.length === 1 && touchStartY > 0) {
+        const delta = e.touches[0].clientY - touchStartY;
+        if (delta > 0) {
+          currentDeltaY = delta;
+          sheetEl.style.transform = `translateY(${Math.min(delta, 250)}px)`;
+        }
+      }
+    }, { passive: true });
+
+    sheetEl.addEventListener("touchend", function() {
+      sheetEl.style.transform = "";
+      if (currentDeltaY > 70) {
+        closeSchoolYearModal();
+      }
+      touchStartY = 0;
+      currentDeltaY = 0;
+    }, { passive: true });
+  }
 
   // Inicialização
   renderQuestion("forward");

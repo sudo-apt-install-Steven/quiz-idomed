@@ -50,6 +50,7 @@
   const elTableBody = document.getElementById("responsesTableBody");
   const elTablePagination = document.getElementById("tablePagination");
   const elSearchInput = document.getElementById("tableSearchInput");
+  const elTableResultCount = document.getElementById("tableResultCount");
 
   // Modal QR Code
   const elQrModal = document.getElementById("qrModal");
@@ -66,6 +67,31 @@
     '#8b5cf6', // Violeta
     '#64748b'  // Cinza Ardósia
   ];
+
+  /**
+   * Sanitização estrita contra XSS para inserções no DOM
+   */
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  /**
+   * Sanitização de células CSV contra CSV Formula Injection (DDE)
+   */
+  function sanitizeCSVCell(val) {
+    if (val === null || val === undefined) return '""';
+    let str = String(val);
+    if (/^[=+\-@\t\r]/.test(str)) {
+      str = "'" + str;
+    }
+    return `"${str.replace(/"/g, '""')}"`;
+  }
 
   /**
    * Inicialização do Painel
@@ -348,8 +374,8 @@
       <ul>
         <li><strong>Prevalência Geral:</strong> <strong>${expPct}%</strong> dos estudantes relatam já ter experimentado ou fazer uso ativo de cigarros eletrônicos (vape/pod).</li>
         <li><strong>Idade de Iniciação Precoce:</strong> Entre os que já tiveram contato com o dispositivo, <strong>${earlyPct}%</strong> experimentaram antes dos 15 anos de idade.</li>
-        <li><strong>Fator Atrativo Predominante:</strong> A principal motivação apontada para o primeiro contato é <em>"${topAtrativo}"</em>.</li>
-        <li><strong>Cadeia de Fornecimento:</strong> A forma mais expressiva de acesso aos dispositivos entre os jovens é através de <em>"${topAcesso}"</em>.</li>
+        <li><strong>Fator Atrativo Predominante:</strong> A principal motivação apontada para o primeiro contato é <em>"${escapeHTML(topAtrativo)}"</em>.</li>
+        <li><strong>Cadeia de Fornecimento:</strong> A forma mais expressiva de acesso aos dispositivos entre os jovens é através de <em>"${escapeHTML(topAcesso)}"</em>.</li>
         <li><strong>Lacuna de Comunicação Preventiva:</strong> <strong>${noDialoguePct}%</strong> dos estudantes apontam que <em>nunca tiveram conversas</em> sobre os riscos associados ao vape na escola ou em casa.</li>
       </ul>
     `;
@@ -641,7 +667,7 @@
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${opt} ${isTop ? '<span class="badge-top">Líder</span>' : ''}</td>
+          <td>${escapeHTML(opt)} ${isTop ? '<span class="badge-top">Líder</span>' : ''}</td>
           <td class="num">${count}</td>
           <td class="num">${pct}%</td>
         `;
@@ -703,7 +729,7 @@
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${opt} ${isTop ? '<span class="badge-top">Líder</span>' : ''}</td>
+            <td>${escapeHTML(opt)} ${isTop ? '<span class="badge-top">Líder</span>' : ''}</td>
             <td class="num">${count}</td>
             <td class="num">${pct}%</td>
           `;
@@ -764,6 +790,16 @@
     }
 
     const totalRows = dataset.length;
+
+    if (elTableResultCount) {
+      if (searchQuery) {
+        elTableResultCount.style.display = "inline-block";
+        elTableResultCount.textContent = `${totalRows} resultado(s)`;
+      } else {
+        elTableResultCount.style.display = "none";
+      }
+    }
+
     const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
 
     if (currentPage > totalPages) currentPage = totalPages;
@@ -791,18 +827,18 @@
           : "-";
 
         tr.innerHTML = `
-          <td><strong>${formattedDate}</strong></td>
-          <td>${row.q1_faixa_etaria || "-"}</td>
-          <td>${row.q1_ano_escolar || "-"}</td>
-          <td>${row.q2_contato_vape || "-"}</td>
-          <td>${row.q3_idade_primeiro_contato || "-"}</td>
-          <td>${row.q4_dispositivo_popular || "-"}</td>
-          <td>${row.q5_atrativo_principal || "-"}</td>
-          <td>${row.q6_amigos_usam || "-"}</td>
-          <td>${row.q7_forma_acesso || "-"}</td>
-          <td>${row.q8_frequencia_escola || "-"}</td>
-          <td>${row.q9_percepcao_risco || "-"}</td>
-          <td>${row.q10_dialogo_prevencao || "-"}</td>
+          <td><strong>${escapeHTML(formattedDate)}</strong></td>
+          <td><span class="table-pill age">${escapeHTML(row.q1_faixa_etaria || "-")}</span></td>
+          <td><span class="table-pill year">${escapeHTML(row.q1_ano_escolar || "-")}</span></td>
+          <td><span class="table-pill contact">${escapeHTML(row.q2_contato_vape || "-")}</span></td>
+          <td>${escapeHTML(row.q3_idade_primeiro_contato || "-")}</td>
+          <td>${escapeHTML(row.q4_dispositivo_popular || "-")}</td>
+          <td>${escapeHTML(row.q5_atrativo_principal || "-")}</td>
+          <td>${escapeHTML(row.q6_amigos_usam || "-")}</td>
+          <td>${escapeHTML(row.q7_forma_acesso || "-")}</td>
+          <td>${escapeHTML(row.q8_frequencia_escola || "-")}</td>
+          <td>${escapeHTML(row.q9_percepcao_risco || "-")}</td>
+          <td>${escapeHTML(row.q10_dialogo_prevencao || "-")}</td>
         `;
         elTableBody.appendChild(tr);
       });
@@ -870,19 +906,19 @@
     ];
 
     const rows = dataset.map(r => [
-      `"${r.id || ""}"`,
-      `"${r.created_at || ""}"`,
-      `"${(r.q1_faixa_etaria || "").replace(/"/g, '""')}"`,
-      `"${(r.q1_ano_escolar || "").replace(/"/g, '""')}"`,
-      `"${(r.q2_contato_vape || "").replace(/"/g, '""')}"`,
-      `"${(r.q3_idade_primeiro_contato || "").replace(/"/g, '""')}"`,
-      `"${(r.q4_dispositivo_popular || "").replace(/"/g, '""')}"`,
-      `"${(r.q5_atrativo_principal || "").replace(/"/g, '""')}"`,
-      `"${(r.q6_amigos_usam || "").replace(/"/g, '""')}"`,
-      `"${(r.q7_forma_acesso || "").replace(/"/g, '""')}"`,
-      `"${(r.q8_frequencia_escola || "").replace(/"/g, '""')}"`,
-      `"${(r.q9_percepcao_risco || "").replace(/"/g, '""')}"`,
-      `"${(r.q10_dialogo_prevencao || "").replace(/"/g, '""')}"`
+      sanitizeCSVCell(r.id),
+      sanitizeCSVCell(r.created_at),
+      sanitizeCSVCell(r.q1_faixa_etaria),
+      sanitizeCSVCell(r.q1_ano_escolar),
+      sanitizeCSVCell(r.q2_contato_vape),
+      sanitizeCSVCell(r.q3_idade_primeiro_contato),
+      sanitizeCSVCell(r.q4_dispositivo_popular),
+      sanitizeCSVCell(r.q5_atrativo_principal),
+      sanitizeCSVCell(r.q6_amigos_usam),
+      sanitizeCSVCell(r.q7_forma_acesso),
+      sanitizeCSVCell(r.q8_frequencia_escola),
+      sanitizeCSVCell(r.q9_percepcao_risco),
+      sanitizeCSVCell(r.q10_dialogo_prevencao)
     ]);
 
     // Adiciona BOM (Byte Order Mark) UTF-8 para Excel abrir sem corromper acentos
